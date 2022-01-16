@@ -1,0 +1,51 @@
+# syntax = docker/dockerfile:1.3-labs
+# above syntax declaration is needed for heredoc support in Dockerfile
+FROM alpine:latest as binaries
+WORKDIR /tmp
+ARG BIN_PATH=/usr/local/bin/tmp
+RUN mkdir -p ${BIN_PATH}
+
+RUN apk update && apk upgrade
+RUN apk add --no-cache curl wget tar
+
+# minikube
+RUN sh -c "curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube && mv minikube ${BIN_PATH}/"
+
+# kubectl with bash completion / https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/
+RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" \
+    && install -o root -g root -m 0755 kubectl ${BIN_PATH}/kubectl
+
+RUN cat <<EOF >> /etc/profile.d/env.sh
+source <(kubectl completion bash)
+alias k=kubectl
+complete -F __start_kubectl k
+EOF
+
+# helm 3
+RUN wget -q https://get.helm.sh/helm-v3.7.2-linux-amd64.tar.gz \
+    && tar -xf helm-v3.7.2-linux-amd64.tar.gz \
+    && chmod +x linux-amd64/helm && mv linux-amd64/helm ${BIN_PATH}
+
+# skaffold
+# TODO: install more cncf tools https://landscape.cncf.io/
+RUN curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64 \
+    && chmod +x skaffold && mv skaffold ${BIN_PATH}
+
+# tilt
+RUN wget -q -O tilt.tar.gz https://github.com/tilt-dev/tilt/releases/download/v0.23.6/tilt.0.23.6.linux.x86_64.tar.gz \
+    && tar -xzf tilt.tar.gz && chmod +x tilt && mv tilt ${BIN_PATH}
+
+# k9s
+RUN wget -q https://github.com/derailed/k9s/releases/download/v0.24.1/k9s_Linux_x86_64.tar.gz \
+    && tar -xzf k9s_Linux_x86_64.tar.gz k9s && chmod +x k9s && mv k9s ${BIN_PATH}
+
+# gotty
+RUN wget -q -O gotty.tar.gz https://github.com/yudai/gotty/releases/download/v1.0.1/gotty_linux_amd64.tar.gz \
+    && tar -xzf gotty.tar.gz && chmod +x gotty && mv gotty ${BIN_PATH}
+
+# cleanups
+RUN rm -rf /tmp/*
+
+# TODO: image inspection tools, image security checking etc
+# docker build --squash -f Dockerfile.binaries -t savyasachi9/binaries:${VERSION} -t savyasachi9/binaries:latest .
+# docker run -it --rm --name binaries savyasachi9/binaries:${VERSION}

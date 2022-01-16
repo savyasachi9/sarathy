@@ -1,0 +1,3 @@
+- Docs are powered by Hugo
+- docs are all .md files
+- some docs get copied/imported from other dirs like sys/ usr/
