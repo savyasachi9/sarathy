@@ -68,11 +68,12 @@ if [[ "${K8S_CLUSTER}" == 'minikube' ]]; then
     sudo systemctl start minikube
 
     # TODO: instead of sleeping here check some other way to save time
-    printf "Sleeping for 60 secs for cluster to boot"
+    printf "Sleeping for 60 secs for cluster to boot\n"
     sleep 60
 
     # TODO: ensure minikube cluster is enabled and running
-    minikube addons enable dashboard && minikube addons enable metrics-server
+    minikube addons enable metrics-server
+    minikube addons enable dashboard
 else
     printf "Unknown or no cluster name given ()\n"
     return 1

@@ -7,11 +7,12 @@
 ```bash
 # run minikube container
 # creds: docker / docker
-mkdir -p /tmp/.sarathy/minikube
+mkdir -p $(pwd)/.sarathy/minikube
 
 docker run -it --rm \
-    --privileged -it -h minikube --name sarathy-minikube \
-    --mount type=bind,source=/tmp/.sarathy/minikube,target=/var/lib/docker \
+    --privileged -it -h minikube \
+    --mount type=bind,source=$(pwd)/.sarathy/minikube,target=/var/lib/docker \
+    --name sarathy-minikube \
     savyasachi9/sarathy:minikube
 
 # connect to container
