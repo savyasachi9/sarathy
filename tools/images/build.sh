@@ -1,57 +1,86 @@
 #!/usr/bin/env bash
+# TODO: if docker buildx with --push works, then no need to use base image with ARCH in the TAG
+# base images  -> sarathy:v0.1.0-amd64 / sarathy:latest-amd64
+#              -> sarathy:v0.1.0-arm64 / sarathy:latest-arm64
+# child images -> sarathy:v0.1.0-live-amd64 / sarathy:live-amd64
+#              -> sarathy:v0.1.0-live-arm64 / sarathy:live-arm64
+
 set -e
 DIR=$(dirname $0)
 VERSION=v0.1.0
 
-### 0) build binaries container image
-docker build --squash -f ${DIR}/Dockerfile.binaries -t savyasachi9/binaries:${VERSION} -t savyasachi9/binaries:latest .
+ARCH=${1}
+ARCH_SUPPORTED=('amd64' 'arm64') # arch's we have tested for & verified everything
+if [[ ! " ${ARCH_SUPPORTED[*]} " =~ " ${1} " ]]; then
+    printf "Invalid ARCH value given, supported arch are amd64/arm64\n"
+    exit 1
+fi
 
-### 1) build cluster container image (TODO: build for multi arch using dockerx)
-docker build --squash -f ${DIR}/Dockerfile --build-arg VERSION=${VERSION} -t savyasachi9/sarathy:${VERSION} -t savyasachi9/sarathy:latest .
+printf "Building for ARCH($ARCH)\n"
+
+IMAGE_REPOSITORY=savyasachi9
+BASE_CONTAINER_IMAGE_TAG=${IMAGE_REPOSITORY}/sarathy:${VERSION}-${ARCH}
+BASE_CONTAINER_IMAGE_TAG_ALIAS=${IMAGE_REPOSITORY}/sarathy:latest-${ARCH}
+BASE_CONTAINER_NAME=sarathy-${VERSION}-${ARCH}
+
+FINAL_CONTAINER_IMAGE_TAG=${IMAGE_REPOSITORY}/sarathy:${VERSION}-live-${ARCH}
+FINAL_CONTAINER_IMAGE_TAG_ALIAS=${IMAGE_REPOSITORY}/sarathy:live-${ARCH}
+FINAL_CONTAINER_NAME=sarathy-${VERSION}-live-${ARCH}
+
+### 1) build base image for asked arch
+docker build --squash -f Dockerfile --platform linux/${ARCH} \
+    --build-arg VERSION=${VERSION} \
+    -t ${BASE_CONTAINER_IMAGE_TAG} -t ${BASE_CONTAINER_IMAGE_TAG_ALIAS} .
 
 ### 2) run base container & install some tools which can't be installed at build time
-docker kill sarathy-${VERSION} || true
-mkdir -p /tmp/.sarathy/dind
-docker run --rm -d \
-    --mount type=bind,source=/tmp/.sarathy/dind,target=/var/lib/docker \
-    --privileged -it -h minikube --name sarathy-${VERSION} \
-    savyasachi9/sarathy:${VERSION}
+docker kill ${BASE_CONTAINER_NAME} || true; sleep 6 # stop if already running
+#mkdir -p /tmp/.sarathy/dind
+docker run --platform linux/${ARCH} \
+    -d --rm --privileged -it -h sarathy \
+    --name ${BASE_CONTAINER_NAME} \
+    ${BASE_CONTAINER_IMAGE_TAG}
 
-printf "Sleeping for sometime for container to be up\n"
-sleep 9 && docker ps
+printf "\nWaiting a few for base container to be up, expected ARCH(${ARCH})\n"
+sleep 12;
+docker exec -it --user docker ${BASE_CONTAINER_NAME} arch
 
 # install tools in running container
 printf "Installing tools in base container\n"
-docker exec -it --user docker sarathy-${VERSION} /scripts/post_build.sh
+docker exec -it --user docker ${BASE_CONTAINER_NAME} /scripts/post_build.sh || true
+docker exec -it ${BASE_CONTAINER_NAME} rm -rf /scripts || true
 
 ### 3) export final container with k8s cluster running with apps deployed
-docker commit sarathy-${VERSION} savyasachi9/sarathy:${VERSION}-minikube
-docker tag savyasachi9/sarathy:${VERSION}-minikube savyasachi9/sarathy:minikube
+printf "Saving running container as final k8s cluster image\n"
+docker commit ${BASE_CONTAINER_NAME} ${FINAL_CONTAINER_IMAGE_TAG}
+docker tag ${FINAL_CONTAINER_IMAGE_TAG} ${FINAL_CONTAINER_IMAGE_TAG_ALIAS}
 
-# stop base container gracefully
-docker exec -it --user docker sarathy-${VERSION} sudo shutdown now
-docker images | grep savyasachi9 | grep ${VERSION} && docker ps
-
+### 4) Run tests on the final container to ensure k8s cluster & related apps got deployed etc
+docker kill ${FINAL_CONTAINER_NAME} || true; sleep 6 # stop if already running
 printf "Now running the final container\n"
-docker kill sarathy-${VERSION}-minikube || true
-mkdir -p /tmp/.sarathy/minikube
-docker run -d --rm \
-    --mount type=bind,source=/tmp/.sarathy/minikube,target=/var/lib/docker \
-    --privileged -it -h minikube --name sarathy-${VERSION}-minikube \
-    savyasachi9/sarathy:${VERSION}-minikube
+#mkdir -p /tmp/.sarathy/live
+docker run --platform linux/${ARCH} \
+    -d --rm --privileged -it -h sarathy \
+    --name ${FINAL_CONTAINER_NAME} \
+    ${FINAL_CONTAINER_IMAGE_TAG}
 
-# TODO: run tests on the final minikube & other containers to make sure that 
+# TODO: run tests on the final container to make sure that
 # - all expected things are there, networking and everything else works etc
-sleep 30 && docker ps
-docker exec -it --user docker sarathy-${VERSION}-minikube minikube status
-docker exec -it --user docker sarathy-${VERSION}-minikube kubectl get pods -A
+docker ps; sleep 45;
+docker exec -it --user docker ${FINAL_CONTAINER_NAME} kubectl get pods -A || true
 
-docker kill sarathy-${VERSION} sarathy-${VERSION}-minikube
+# stop containers gracefully, then force kill just in case still running
+docker stop ${BASE_CONTAINER_NAME}
+docker stop ${FINAL_CONTAINER_NAME}
+docker kill ${BASE_CONTAINER_NAME} ${FINAL_CONTAINER_NAME} || true
 
 # Push images if asked for
-if [[ "${1}" == 'push' ]]; then
-    printf "Pushing images to docker registry\n"
-    docker push savyasachi9/binaries:${VERSION} && docker push savyasachi9/binaries:latest
-    docker push savyasachi9/sarathy:${VERSION} && docker push savyasachi9/sarathy:latest
-    docker push savyasachi9/sarathy:${VERSION}-minikube && docker push savyasachi9/sarathy:minikube
+if [[ "${2}" == 'push' ]]; then
+    printf "\n\n\n=========> Pushing images to docker registry\n"
+    docker push ${BASE_CONTAINER_IMAGE_TAG}
+    docker push ${BASE_CONTAINER_IMAGE_TAG_ALIAS}
+
+    # TODO: try squashing the final image ??? in Dockerfile have a target whoich inhertits from the final image
+    #       then see if we can squash it and save any space
+    docker push ${FINAL_CONTAINER_IMAGE_TAG}
+    docker push ${FINAL_CONTAINER_IMAGE_TAG_ALIAS}
 fi

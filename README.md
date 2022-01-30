@@ -1,22 +1,18 @@
-# sarathy
+# Sarathy
 "one with a chariot"
-
-### Toolchain info
 
 ### Usage
 ```bash
-# run minikube container
-# creds: docker / docker
-mkdir -p $(pwd)/.sarathy/minikube
+# Run container with 'minikube' k8s cluster
+# credentials: docker / docker
 
-docker run -it --rm \
-    --privileged -it -h minikube \
-    --mount type=bind,source=$(pwd)/.sarathy/minikube,target=/var/lib/docker \
-    --name sarathy-minikube \
-    savyasachi9/sarathy:minikube
+docker run -it --rm --privileged \
+    --hostname k8s \
+    --name sarathy \
+    savyasachi9/sarathy:live-amd64
 
-# connect to container
-docker exec -it --user docker sarathy-minikube bash
+# Connect to container
+docker exec -it --user docker sarathy bash
 
 ```
-> IMP: --mount is needed for /var/lib/docker else docker service fails to run in the conatiner
+> NOTE: use image 'savyasachi9/sarathy:minikube-amd64' for arm64 arch (apple m1, raspberry pi etc)
