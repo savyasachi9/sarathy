@@ -15,4 +15,4 @@ docker run -it --rm --privileged \
 docker exec -it --user docker sarathy bash
 
 ```
-> NOTE: use image 'savyasachi9/sarathy:minikube-amd64' for arm64 arch (apple m1, raspberry pi etc)
+> NOTE: use image 'savyasachi9/sarathy:live-arm64' for arm64 arch (apple m1, raspberry pi etc)
