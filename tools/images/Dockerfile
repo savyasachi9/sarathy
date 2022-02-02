@@ -18,33 +18,14 @@ RUN apt install -y -qq \
 # copy over binaries & env.sh from Dockerfile.binaries image
 COPY ./_utils.sh utils.sh
 RUN chmod +x utils.sh && ./utils.sh $TARGETARCH
-RUN dpkg -i /tmp/packages/deb/*
-#ENV PATH="/usr/local/bin/utils/k8s:/usr/local/bin/utils/docker:/usr/local/bin/utils/web:$PATH"
+
+# IMP:  changing docker docker to unix from fd else things fail when we start the final container w/o a mount -> /var/lib/docker
+# NOTE: we are overriding the docker.service file from base image
+RUN sed -i 's/fd:/unix:/g' /lib/systemd/system/docker.service
 
 # enable features we need for docker
 RUN mkdir -p /etc/docker \
     && echo '{ "experimental": true, "debug" : false, "features": { "buildkit": true } }' > /etc/docker/daemon.json
-
-RUN cat <<EOF > /etc/systemd/system/minikube.service
-[Unit]
-Description=minikube
-After=docker.service
-
-[Service]
-Type=simple
-ExecStart=/usr/local/bin/utils/k8s/minikube start --driver=none --extra-config=kubeadm.ignore-preflight-errors=SystemVerification
-User=docker
-Group=docker
-StandardOutput=syslog
-StandardError=syslog
-SyslogIdentifier=minikube
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-# IMP: changing docker docker to unix from fd else things fail when we start the final container w/o a mount -> /var/lib/docker
-RUN sed -i 's/fd:/unix:/g' /lib/systemd/system/docker.service
 
 RUN echo "export TERM=xterm-256color" >> /etc/profile.d/env.sh
 RUN echo "docker:docker" | chpasswd
@@ -68,17 +49,21 @@ helm repo add stable https://charts.helm.sh/stable \
 # TODO: support more clusters here
 K8S_CLUSTER="${1:-minikube}"
 if [[ "${K8S_CLUSTER}" == 'minikube' ]]; then
+    # TODO: we wanna be k8s cluster agnostic at buildtime and only enable it at runtime ???
     sudo systemctl enable minikube
     sudo systemctl start minikube
 
     # TODO: instead of sleeping here check some other way to save time
-    printf "Sleeping for 300 secs for cluster to boot with all components\n"
-    sleep 300
+    sleep_for=180
+    printf "Sleeping for ${sleep_for} secs for cluster to boot with all components\n"
+    sleep ${sleep_for}
 
     # TODO: ensure minikube cluster is enabled and running
     minikube addons enable metrics-server
     minikube addons enable dashboard
+    sleep 30
 
+    # TODO: remove these test cmds from here & automate the manual test
     docker images
     kubectl get pods -A
 else
@@ -86,7 +71,7 @@ else
     return 1
 fi
 
-# In the end cleanup docker runtime files
+# IMP: In the end cleanup docker runtime files else this errors out for next run on another machine
 sudo mv /var/lib/docker/runtimes /var/lib/docker/runtimes-old
 
 EOF
