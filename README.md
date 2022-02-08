@@ -27,6 +27,6 @@ http://localhost:9091
 ### Programming Languages
 - c/c++, gcc 9, gdb
 - golang1.17
-- PHP8.1, xdebug
-- Python3.8, pip3
+- php8.1, xdebug
+- python3.8, pip3
 > above languages have code-server debug extensions pre-installed ( 'Ctrl + F5' )
