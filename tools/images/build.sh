@@ -4,12 +4,14 @@
 #              -> sarathy:v0.1.0-arm64 / sarathy:latest-arm64
 # child images -> sarathy:v0.1.0-live-amd64 / sarathy:live-amd64
 #              -> sarathy:v0.1.0-live-arm64 / sarathy:live-arm64
-
 set -e
 DIR=$(dirname $0)
 VERSION=v0.1.0
 
 ARCH=${1}
+ARCH_ALIAS=${ARCH}
+if [[ "${ARCH}" == 'amd64' ]]; then ARCH_ALIAS='x86_64'; fi
+
 ARCH_SUPPORTED=('amd64' 'arm64') # arch's we have tested for & verified everything
 if [[ ! " ${ARCH_SUPPORTED[*]} " =~ " ${1} " ]]; then
     printf "Invalid ARCH value given, supported arch are amd64/arm64\n"
@@ -17,7 +19,6 @@ if [[ ! " ${ARCH_SUPPORTED[*]} " =~ " ${1} " ]]; then
 fi
 
 printf "Building for ARCH($ARCH)\n"
-
 IMAGE_REPOSITORY=savyasachi9
 BASE_CONTAINER_IMAGE_TAG=${IMAGE_REPOSITORY}/sarathy:${VERSION}-${ARCH}
 BASE_CONTAINER_IMAGE_TAG_ALIAS=${IMAGE_REPOSITORY}/sarathy:latest-${ARCH}
@@ -29,8 +30,12 @@ FINAL_CONTAINER_NAME=sarathy-${VERSION}-live-${ARCH}
 
 ### 1) build base image for asked arch
 docker build --squash -f Dockerfile --platform linux/${ARCH} \
-    --build-arg VERSION=${VERSION} \
+    --build-arg VERSION=${VERSION} --build-arg ARCH=${ARCH} --build-arg ARCH_ALIAS=${ARCH_ALIAS} \
     -t ${BASE_CONTAINER_IMAGE_TAG} -t ${BASE_CONTAINER_IMAGE_TAG_ALIAS} .
+
+if [[ "${2}" == "skip-run" ]]; then
+    printf "Just building base image & skipping runnig post build scripts\n"; exit 0;
+fi
 
 ### 2) run base container & install some tools which can't be installed at build time
 docker kill ${BASE_CONTAINER_NAME} || true; sleep 6 # stop if already running
@@ -79,8 +84,7 @@ if [[ "${2}" == 'push' ]]; then
     docker push ${BASE_CONTAINER_IMAGE_TAG}
     docker push ${BASE_CONTAINER_IMAGE_TAG_ALIAS}
 
-    # TODO: try squashing the final image ??? in Dockerfile have a target whoich inhertits from the final image
-    #       then see if we can squash it and save any space
+    # TODO: to save space try squashing the final image ??? in Dockerfile have a target whoich inhertits from the final image
     docker push ${FINAL_CONTAINER_IMAGE_TAG}
     docker push ${FINAL_CONTAINER_IMAGE_TAG_ALIAS}
 fi
