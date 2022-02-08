@@ -14,7 +14,7 @@ docker run -it --rm --privileged \
 docker exec -it --user docker sarathy bash
 
 # Visit webtty/gotty in browser (not available for arm64 yet)
-http://localhost:9091
+http://localhost:9090
 
 # Visit code-server/vscode in browser
 http://localhost:9091
