@@ -33,7 +33,7 @@ http://192.168.86.92:9091/?folder=/src/
 - php8.1, xdebug
 - python3.8, pip3
 
-> above languages have code-server debug extensions pre-installed, use key 'F5' to run debugger in vscode
+> above languages are pre-installed with vscode debug extensions, use key 'F5' to run debugger in vscode
 
 
 ### Tools & Utils
