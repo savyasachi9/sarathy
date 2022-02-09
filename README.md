@@ -1,6 +1,8 @@
 # Sarathy
 "one with a chariot"
 
+general purpose tools to build container apps
+
 ### Usage
 ```bash
 # Run container with 'minikube' k8s cluster
@@ -30,7 +32,8 @@ http://192.168.86.92:9091/?folder=/src/
 - golang1.17, dlv
 - php8.1, xdebug
 - python3.8, pip3
-> above languages have code-server debug extensions pre-installed, use key 'F5' to run debugger
+
+> above languages have code-server debug extensions pre-installed, use key 'F5' to run debugger in vscode
 
 
 ### Tools & Utils
