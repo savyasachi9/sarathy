@@ -73,7 +73,10 @@ RUN wget -q -O go.tar.gz https://go.dev/dl/go1.17.6.linux-${ARCH}.tar.gz \
     && go install -v golang.org/x/tools/gopls@latest \
     && go env -w GO111MODULE=off
 
-    # TODO: rust, java, node npm, ruby???
+# TODO: rust, java, node npm, ruby???
+# rust lang
+# RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+# source $HOME/.cargo/env
 
 # Install binaries, packages
 ##########################################
@@ -132,10 +135,13 @@ EOF
 
 #################################################
 # Container tools (docker, buildah, podman etc) :
-ENV BIN_PATH=/usr/local/bin/utils/docker \
+ENV BIN_PATH=/usr/local/bin/utils/container \
     PATH="${BIN_PATH}:${PATH}"
 
-RUN mkdir -p ${BIN_PATH}
+RUN mkdir -p ${BIN_PATH} \
+    && ln -s /usr/bin/docker ${BIN_PATH} \
+    && ln -s /usr/bin/podman ${BIN_PATH} \
+    && ln -s /usr/bin/containerd ${BIN_PATH}
 
 # TODO : add docker & other container related tools, like image vulnerability scanner, dive etc
 # nerdctl + containerd, buildah if not already there
@@ -167,12 +173,10 @@ EOF
 # TODO: IPFS support & croc for sending files over web
 
 # Set user ENV vars
-# TODO: find some other way todo this
-#ENV PATH="/usr/local/bin/utils/k8s:/usr/local/bin/utils/docker:/usr/local/bin/utils/web:$PATH"
-
 RUN \
     chown -R $USER $HOME && \
-    echo "docker:docker" | chpasswd && \
+    #echo "${USER}:${USER}" | chpasswd && \
+    echo "docker:d" | chpasswd && \
     echo "export TERM=xterm-256color" >> /etc/profile.d/env.sh && \
     echo "export PATH=${PATH}" >> /etc/profile.d/env.sh && \
     cat /etc/profile.d/k8s.sh >> /etc/profile.d/env.sh && \
@@ -184,8 +188,12 @@ RUN rm -rf /usr/local/sbin/unminimize /usr/bin/man /etc/update-motd.d/60-unminim
     rm -rf /tmp/* ~/.ssh/* ~/.docker/*; \
     apt clean && apt autoclean && apt autoremove && apt autoremove --purge -y
 
-RUN mkdir -p /src/examples /src/user && chown -R docker:docker /src
+RUN mkdir -p /src/.vscode /src/examples /src/user && chown -R docker:docker /src
 COPY ./examples /src/examples
+# TODO: check if these settings will work for arm64 outta box or not(if not then only do them for amd64 for now)
+# TODO: copy over vscode mscpp extension for both amd64 & arm64 and then install it at buildtime
+# TODO: check if zipping extension dir saves and space after docker image is built
+COPY ./vscode/.vscode /src/.vscode
 WORKDIR /src
 
 RUN mkdir -p /scripts
@@ -226,9 +234,6 @@ else
     printf "Unknown or no cluster name given ()\n"
     return 1
 fi
-
-# IMP: In the end cleanup docker runtime files else this errors out for next run on another machine
-#sudo mv /var/lib/docker/runtimes /var/lib/docker/runtimes-old
 
 EOF
 RUN chmod +x /scripts/post_build.sh

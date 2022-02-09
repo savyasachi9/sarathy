@@ -4,20 +4,21 @@
 ### Usage
 ```bash
 # Run container with 'minikube' k8s cluster
-# credentials: docker / docker
+# credentials: docker / d
 docker run -it --rm --privileged \
-    -p 9090:9090 -p 9091:9091 \
-    -h k8s --name sarathy \
+    -p 9090-9099:9090-9099 \
+    -h sarathy --name sarathy \
+    -v ${PWD}:/src/user \
     savyasachi9/sarathy:live-amd64
 
 # Connect to container
 docker exec -it --user docker sarathy bash
 
-# Visit webtty/gotty in browser (not available for arm64 yet)
+# Visit webtty/gotty with bash in browser (not available for arm64 yet)
 http://localhost:9090
 
 # Visit code-server/vscode in browser
-http://localhost:9091
+http://192.168.86.92:9091/?folder=/src/
 
 ```
 > use image 'savyasachi9/sarathy:live-arm64' for arm64 arch (apple m1, raspberry pi etc)
@@ -26,7 +27,28 @@ http://localhost:9091
 
 ### Programming Languages
 - c/c++, gcc 9, gdb
-- golang1.17
+- golang1.17, dlv
 - php8.1, xdebug
 - python3.8, pip3
-> above languages have code-server debug extensions pre-installed ( 'Ctrl + F5' )
+> above languages have code-server debug extensions pre-installed, use key 'F5' to run debugger
+
+
+### Tools & Utils
+```bash
+# list available tools & utils
+/usr/local/bin/utils/
+├── containers
+│   ├── containerd
+│   ├── docker
+│   └── podman
+├── k8s
+│   ├── helm
+│   ├── k9s
+│   ├── krew
+│   ├── kubectl
+│   ├── minikube
+│   ├── skaffold
+│   └── tilt
+└── web
+    └── gotty
+```
