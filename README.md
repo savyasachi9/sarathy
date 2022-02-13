@@ -20,7 +20,7 @@ docker exec -it --user docker sarathy bash
 http://localhost:9090
 
 # Visit code-server/vscode in browser
-http://192.168.86.92:9091/?folder=/src/
+http://localhost:9091/?folder=/src/
 
 ```
 > use image 'savyasachi9/sarathy:live-arm64' for arm64 arch (apple m1, raspberry pi etc)
@@ -38,7 +38,7 @@ http://192.168.86.92:9091/?folder=/src/
 
 ### Tools & Utils
 ```bash
-# list available tools & utils
+# list of available tools & utils
 /usr/local/bin/utils/
 ├── containers
 │   ├── containerd
