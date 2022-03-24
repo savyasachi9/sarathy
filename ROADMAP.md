@@ -12,6 +12,7 @@
 - base image local registry ?
 
 ### Next Steps / TODOs:
+- Test & use docker volumes for end user instructions for /var/lib/docker such that their docker images can be preserved
 - Instructions for end user to extend sarathy & build their own base/live images
 - IPFS support & croc for sending files over web
 - rust-desk
