@@ -32,7 +32,9 @@ docker exec -it --user docker sarathy bash
 docker exec -it sarathy mysql -h sarathy -u root -proot
 ```
 > use image 'savyasachi9/sarathy:latest-arm64' for arm64 arch (apple m1, raspberry pi etc)
+
 > all the tools in container image are installed for user 'docker'
+
 > login creds : docker / d
 
 ### Programming Languages
@@ -47,11 +49,12 @@ docker exec -it sarathy mysql -h sarathy -u root -proot
 ### Tools & Utils
 ```bash
 # list of available tools & utils
+tree /usr/local/bin/utils/
 /usr/local/bin/utils/
-├── containers
-│   ├── containerd
-│   ├── docker
-│   └── podman
+├── container
+│   ├── containerd -> /usr/bin/containerd
+│   ├── docker -> /usr/bin/docker
+│   └── podman -> /usr/bin/podman
 ├── k8s
 │   ├── helm
 │   ├── k9s
@@ -60,6 +63,11 @@ docker exec -it sarathy mysql -h sarathy -u root -proot
 │   ├── minikube
 │   ├── skaffold
 │   └── tilt
+├── rust
+│   ├── bat -> /usr/bin/batcat
+│   ├── fd -> /usr/bin/fdfind
+│   ├── man -> /usr/bin/tldr
+│   └── rg -> /usr/bin/rg
 └── web
     └── gotty
 ```
