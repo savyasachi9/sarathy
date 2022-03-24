@@ -71,7 +71,7 @@
 ### Project Goals:
 - 10+ users by EOY 2022, 100+ by EOY 2023, 1000+ by EOY 2024 ... 1/10 users to be Enterprise
 - users in 3 categories (students starting grade 6+ -> Masters/PHD, Devs/Tinkerers, Enterprise)
-  1 enterprise client to hire 2-3 ENGs & tie ups with schools/colleges/coaching institutes
+- 1 enterprise client to hire 2-3 ENGs & tie ups with schools/colleges/coaching institutes
 
 ### Commit running container for end user:
 - run with while loop such that we docker commit the live image every X secs
