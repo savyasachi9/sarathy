@@ -50,7 +50,7 @@ docker exec -it sarathy mysql -h sarathy -u root -proot
 ```bash
 # list of available tools & utils
 tree /usr/local/bin/utils/
-/usr/local/bin/utils/
+
 ├── container
 │   ├── containerd -> /usr/bin/containerd
 │   ├── docker -> /usr/bin/docker
