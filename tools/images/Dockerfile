@@ -69,7 +69,7 @@ RUN rm -rf /usr/local/sbin/unminimize /usr/bin/man /etc/update-motd.d/60-unminim
 RUN cat <<'EOF' >> /scripts/post_build.sh && chmod +x /scripts/post_build.sh
 #!/usr/bin/env bash
 source /scripts/_utils.sh
-if [[ "${3}" != "" ]]; then sudo sed -i 's/version=/version=${2}/g' /etc/systemd/system/minikube.service; fi
+if [[ "${3}" != "" ]]; then sudo sed -i "s/version=/version=${3}/g" /etc/systemd/system/minikube.service; fi
 install_k8s_cluster $1
 if [[ "${2}" == "yes" ]]; then install_k8s_default_apps; fi
 EOF
