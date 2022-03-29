@@ -1,7 +1,7 @@
 # Sarathy
 "one with a chariot"
 
-general purpose tools to build container & other web/cli apps
+general purpose toolchain to build cli, web & container apps
 
 ### Usage
 ```bash
@@ -49,25 +49,27 @@ docker exec -it sarathy mysql -h sarathy -u root -proot
 ### Tools & Utils
 ```bash
 # list of available tools & utils
-tree /usr/local/bin/utils/
-
+tools
+/usr/local/bin/tools
 ├── container
 │   ├── containerd -> /usr/bin/containerd
 │   ├── docker -> /usr/bin/docker
 │   └── podman -> /usr/bin/podman
 ├── k8s
-│   ├── helm
-│   ├── k9s
-│   ├── krew
-│   ├── kubectl
-│   ├── minikube
-│   ├── skaffold
-│   └── tilt
+│   ├── helm -> /usr/local/bin/helm
+│   ├── k9s -> /usr/local/bin/k9s
+│   ├── krew -> /usr/local/bin/krew
+│   ├── kubectl -> /usr/local/bin/kubectl
+│   ├── minikube -> /usr/local/bin/minikube
+│   ├── skaffold -> /usr/local/bin/skaffold
+│   └── tilt -> /usr/local/bin/tilt
 ├── rust
 │   ├── bat -> /usr/bin/batcat
 │   ├── fd -> /usr/bin/fdfind
 │   ├── man -> /usr/bin/tldr
-│   └── rg -> /usr/bin/rg
+│   └── rgrep -> /usr/bin/rg
 └── web
-    └── gotty
+    ├── gotty -> /usr/local/bin/gotty
+    ├── speedtest -> /usr/bin/speedtest
+    └── vscode -> /usr/bin/code-server
 ```
