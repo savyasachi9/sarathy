@@ -77,7 +77,7 @@ tools
 ```
 
 ### Target Audience
-- Students (grade 6+ -> PHD)
+- Students (grade 6+ ---> PHD)
 - Devs, Tinkerers
 - Enterprise, Schools, Colleges, Coaching Institutes
 
