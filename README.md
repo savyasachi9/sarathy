@@ -86,5 +86,5 @@ tools
 - 10+ users by EOY 2022, 100+ by EOY 2023, 1000+ by EOY 2024 ...
 
 ### Thank-yous & Credits, References
-- Many thanks to all the folks whose open source tools/tutorials I am stitching together & building this toolchain.
+- Many thanks to all the folks whose open source tools/tutorials are stitched together for building this toolchain.
 - Much appreciate the folks who are helping build 'sarathy' with their valuable feedback & immense contributions.
