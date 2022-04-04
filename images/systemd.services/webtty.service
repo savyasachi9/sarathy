@@ -1,0 +1,10 @@
+[Unit]
+Description=webtty
+After=docker.service
+
+[Service]
+ExecStart=/usr/local/bin/gotty -a 0.0.0.0 -p 9090 -w bash
+User=docker
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,9 @@
+[Unit]
+Description=php html server
+
+[Service]
+ExecStart=/usr/bin/bash -c 'pushd /src/examples/html/ && php -S 0.0.0.0:9092'
+User=docker
+
+[Install]
+WantedBy=multi-user.target

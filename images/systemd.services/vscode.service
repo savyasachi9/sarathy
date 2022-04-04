@@ -1,0 +1,10 @@
+[Unit]
+Description=vscode
+After=docker.service
+
+[Service]
+ExecStart=code-server --auth none --disable-telemetry --disable-update-check --bind-addr 0.0.0.0:9091
+User=docker
+
+[Install]
+WantedBy=multi-user.target

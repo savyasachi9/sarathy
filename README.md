@@ -1,20 +1,20 @@
 # Sarathy
 "one with a chariot"
 
-general purpose tools to build container & other web/cli apps
+general purpose toolchain to build cli, web & container apps
 
 ### Usage
 ```bash
 # Run docker in docker
 docker run -it --rm --privileged \
-    -p 9090-9099:9090-9099 \
+    -p 9090-9093:9090-9093 \
     -h sarathy --name sarathy \
     -v ${PWD}:/src/user \
     savyasachi9/sarathy:latest-amd64
 
 # Or run minikube in docker
 docker run -it --rm --privileged \
-    -p 9090-9099:9090-9099 \
+    -p 9090-9093:9090-9093 \
     -h sarathy --name sarathy \
     -v ${PWD}:/src/user \
     savyasachi9/sarathy:minikube-amd64
@@ -22,20 +22,21 @@ docker run -it --rm --privileged \
 # Visit webtty/gotty with bash in browser (not available for arm64 yet)
 http://localhost:9090
 
-# Visit code-server/vscode in browser
+# Visit code-server/vscode IDE in browser
 http://localhost:9091/?folder=/src/
 
 # Connect to container
 docker exec -it --user docker sarathy bash
 
-# Connect to mysql running in sarathy containers k8s cluster (if using minikube image)
-docker exec -it sarathy mysql -h sarathy -u root -proot
+# Or connect to container via ssh (login creds : docker / d)
+ssh docker@$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' sarathy)
+
+# Connect to mysql running in sarathy containers k8s cluster from host OS (if using minikube image)
+docker exec -it --user docker sarathy /bin/bash -c 'mysql -h sarathy -u root -proot'
 ```
 > use image 'savyasachi9/sarathy:latest-arm64' for arm64 arch (apple m1, raspberry pi etc)
 
 > all the tools in container image are installed for user 'docker'
-
-> login creds : docker / d
 
 ### Programming Languages
 - c/c++, gcc 9, gdb
@@ -43,31 +44,47 @@ docker exec -it sarathy mysql -h sarathy -u root -proot
 - php8.1, xdebug
 - python3.8, pip3
 
-> above languages are pre-installed with vscode debug extensions, use key 'F5' to run debugger in vscode
+> above languages are pre-installed with debug extensions, use key 'F5' to run debugger in IDE
 
 
 ### Tools & Utils
 ```bash
 # list of available tools & utils
-tree /usr/local/bin/utils/
-
+tools
+/usr/local/bin/tools
+├── build-tools
+│   └── task
 ├── container
-│   ├── containerd -> /usr/bin/containerd
-│   ├── docker -> /usr/bin/docker
-│   └── podman -> /usr/bin/podman
+│   ├── containerd
+│   ├── docker
+│   └── podman
 ├── k8s
 │   ├── helm
 │   ├── k9s
 │   ├── krew
 │   ├── kubectl
+│   ├── kustomize
 │   ├── minikube
 │   ├── skaffold
 │   └── tilt
 ├── rust
-│   ├── bat -> /usr/bin/batcat
-│   ├── fd -> /usr/bin/fdfind
-│   ├── man -> /usr/bin/tldr
-│   └── rg -> /usr/bin/rg
+│   ├── bat   -> batcat
+│   ├── fd    -> fdfind
+│   ├── man   -> tldr
+│   └── rgrep -> rg
 └── web
-    └── gotty
+    └── code-server
 ```
+
+### Target Audience
+- Students (Grade 6+ ---> PHD)
+- Devs, Tinkerers
+- Enterprise, Schools, Colleges, Coaching Institutes
+
+### Project Goals
+- Help one stay upto date with modern tooling to solve problems & keep experimenting forever.
+- 10+ users by EOY 2022, 100+ by EOY 2023, 1000+ by EOY 2024 ...
+
+### Thank-yous & Credits, References
+- Many thanks to all the folks whose open source tools/tutorials are stitched together for building this toolchain.
+- Much appreciate the folks who are helping build 'sarathy' with their valuable feedback & immense contributions.
