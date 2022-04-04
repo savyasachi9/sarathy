@@ -76,11 +76,6 @@ tools
     └── code-server
 ```
 
-### How to extend or build your own images using sarathy
-```bash
-TODO:
-```
-
 ### Target Audience
 - Students (grade 6+ -> PHD)
 - Devs, Tinkerers
