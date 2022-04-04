@@ -18,13 +18,13 @@ echo $PATH
 /usr/local/go/bin:/usr/local/bin/tools/rust:/home/docker/.krew/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 - test that minikube image has mysql, krew, etc working
 
-### TODO: monaco editor
+### monaco editor
 - monaco editor with various github algorithms in diff langs & other open source codes
   just like these 2
   https://goplay.tools/
   https://goplay.space/
 
-### TODO: misc tools
+### misc tools
 - https://github.com/nvbn/thefuck
 - https://github.com/nocodb/nocodb
 - https://github.com/nextcloud/docker
@@ -36,7 +36,10 @@ echo $PATH
 - minikube dashboard inside minikube cluster itself
 - minikube ingress (nginx/ambassador)
 
-### Next Steps / TODOs:
+### Desktop / GUI support
+- enable support for cross platform desktop GUI for sarathy docker conatiner
+
+### Next Steps:
 - IMP: disable SWAP ?????? test with disabling swap and if it works then just keep it disabled for best performance of k8s cluster
 - install bash testing framwwork and run bash tests for what all we need to test
 - install & test kube-cost plugin

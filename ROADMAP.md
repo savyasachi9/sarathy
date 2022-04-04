@@ -3,6 +3,9 @@
 - support diff programming languages with code-server IDE to build apps
 - publish @ github & dockerhub
 
+### Q2/Q3
+- improve upon toolchain & finish all open TODOs
+
 ### Q2/Q3 2022 / Publish, Market, Onboard & Support Users
 - to friends and devs for feedback
 - at places where folks are looking for getting up & running with k8s locally
