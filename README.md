@@ -90,11 +90,6 @@ TODO:
 - Help one stay upto date with modern tooling to solve problems & keep experimenting forever.
 - 10+ users by EOY 2022, 100+ by EOY 2023, 1000+ by EOY 2024 ...
 
-### Current users (attach github profiles if available)
-- Savyasachi
-- Nitin Duhan
-- Aakash Dahiya
-
 ### Thank-yous & Credits, References
 - Many thanks to all the folks whose open source tools/tutorials I am stitching together & building this toolchain.
 - Much appreciate the folks who are helping build 'sarathy' with their valuable feedback & immense contributions.
