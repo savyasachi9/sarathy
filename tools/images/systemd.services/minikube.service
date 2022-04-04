@@ -1,0 +1,20 @@
+[Unit]
+Description=minikube
+After=docker.service
+
+# https://minikube.sigs.k8s.io/docs/drivers/
+# https://minikube.sigs.k8s.io/docs/handbook/accessing/
+# ExecStop=/usr/local/bin/minikube stop
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/minikube \
+    start --driver=none \
+    --kubernetes-version= \
+    --extra-config=kubeadm.ignore-preflight-errors=SystemVerification \
+    --extra-config=apiserver.service-node-port-range=80-32767
+
+User=docker
+Group=docker
+
+[Install]
+WantedBy=multi-user.target

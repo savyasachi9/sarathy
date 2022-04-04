@@ -1,18 +1,22 @@
 #!/usr/bin/env bash
 # TODO: if docker buildx with --push works, then no need to use base image with ARCH in the TAG
-# base images      -> sarathy:base-ARCH-VERSION / sarathy:base-amd64-v0.1.0 | sarathy:base-arm64-v0.1.0
-#                  -> sarathy:base-ARCH / sarathy:base-amd64 | sarathy:base-arm64
+# base images        -> sarathy:base-ARCH-VERSION / sarathy:base-amd64-v0.1.0 | sarathy:base-arm64-v0.1.0
+#                    -> sarathy:base-ARCH / sarathy:base-amd64 | sarathy:base-arm64
 #
 # child images
+# latest with PLT    -> sarathy:latest-ARCH-VERSION / sarathy:latest-amd64-v0.1.0 | sarathy:latest-arm64-v0.1.0
+# prog lang tools    -> sarathy:latest-ARCH  / sarathy:latest-amd64 | sarathy:latest-arm64
 #
-# latest with PLT   -> sarathy:latest-ARCH-VERSION / sarathy:latest-amd64-v0.1.0 | sarathy:latest-arm64-v0.1.0
-# prog lang tools   -> sarathy:latest-ARCH  / sarathy:latest-amd64 | sarathy:latest-arm64
-#
-# live k8s cluster  -> sarathy:K8S-CLUSTER-ARCH-VERSION / sarathy:minikube-amd64-v0.1.0 | sarathy:minikube-arm64-v0.1.0
-#                   -> sarathy:K8S-CLUSTER-ARCH         / sarathy:minikube-amd64 | sarathy:minikube-amd64
+# live k8s cluster   -> sarathy:K8S_CLUSTER-K8S_VERSION-ARCH-VERSION / sarathy:minikube-amd64-v0.1.0 | sarathy:minikube-arm64-v0.1.0
+#                    -> sarathy:K8S_CLUSTER-K8S_VERSION-ARCH         / sarathy:minikube-amd64 | sarathy:minikube-amd64
 #
 # sarathy-base-amd64 -> sarathy:latest-amd64 -> sarathy:minikube-amd64 | sarathy:k3s-amd64
 #
+# usage:
+# ./build.sh amd64 | ./build.sh arm64
+# ./build.sh amd64 skip-live
+# ./build.sh amd64 push
+# K8S_VERSION=v1.23.3 K8S_CLUSTER=minikube ./build.sh amd64
 set -e
 DIR=$(dirname $0)
 VERSION=v0.1.0
@@ -29,13 +33,17 @@ if [[ ! " ${ARCH_SUPPORTED[*]} " =~ " ${1} " ]]; then
     exit 1
 fi
 
-if [[ ! " ${K8S_CLUSTERS_SUPPORTED[*]} " =~ " ${2} " ]]; then
-    printf "Invalid K8S_CLUSTER value given, supported arch are:\n${K8S_CLUSTERS_SUPPORTED[*]}\n"
+K8S_CLUSTER=${K8S_CLUSTER:-'minikube'} # default is minikube
+K8S_VERSION=${K8S_VERSION:-''}         # default is latest
+K8S_VERSION_TAG=''
+if [[ $K8S_VERSION != '' ]]; then K8S_VERSION_TAG="-k8s${K8S_VERSION}"; fi
+
+if [[ ! " ${K8S_CLUSTERS_SUPPORTED[*]} " =~ " ${K8S_CLUSTER} " ]]; then
+    printf "Invalid K8S_CLUSTER value given, supported k8s clusters are:\n${K8S_CLUSTERS_SUPPORTED[*]}\n"
     exit 1
 fi
 
 IMAGE_REPOSITORY=savyasachi9
-K8S_CLUSTER_TYPE=${2}
 
 BASE_CONTAINER_IMAGE_TAG=${IMAGE_REPOSITORY}/sarathy:base-${ARCH}-${VERSION}
 BASE_CONTAINER_IMAGE_TAG_ALIAS=${IMAGE_REPOSITORY}/sarathy:base-${ARCH}
@@ -45,11 +53,11 @@ LATEST_CONTAINER_IMAGE_TAG=${IMAGE_REPOSITORY}/sarathy:latest-${ARCH}-${VERSION}
 LATEST_CONTAINER_IMAGE_TAG_ALIAS=${IMAGE_REPOSITORY}/sarathy:latest-${ARCH}
 LATEST_CONTAINER_NAME=sarathy-latest-${ARCH}
 
-FINAL_CONTAINER_IMAGE_TAG=${IMAGE_REPOSITORY}/sarathy:${K8S_CLUSTER_TYPE}-${ARCH}-${VERSION}
-FINAL_CONTAINER_IMAGE_TAG_ALIAS=${IMAGE_REPOSITORY}/sarathy:${K8S_CLUSTER_TYPE}-${ARCH}
-FINAL_CONTAINER_NAME=sarathy-${K8S_CLUSTER_TYPE}-${ARCH}
+FINAL_CONTAINER_IMAGE_TAG=${IMAGE_REPOSITORY}/sarathy:${K8S_CLUSTER}${K8S_VERSION_TAG}-${ARCH}-${VERSION}
+FINAL_CONTAINER_IMAGE_TAG_ALIAS=${IMAGE_REPOSITORY}/sarathy:${K8S_CLUSTER}${K8S_VERSION_TAG}-${ARCH}
+FINAL_CONTAINER_NAME=sarathy-${K8S_CLUSTER}-${ARCH}
 
-printf "Building for ARCH($ARCH) & K8S_CLUSTER_TYPE($K8S_CLUSTER_TYPE)\n"
+printf "Building for ARCH($ARCH) & K8S_CLUSTER($K8S_CLUSTER) K8S_VERSION($K8S_VERSION)\n"
 
 ### 0) build base image for asked arch
 docker build --squash -f Dockerfile --platform linux/${ARCH} --target sarathy-base \
@@ -61,7 +69,7 @@ docker build --squash -f Dockerfile --platform linux/${ARCH} --target sarathy-la
     --build-arg VERSION=${VERSION} --build-arg ARCH=${ARCH} --build-arg ARCH_ALIAS=${ARCH_ALIAS} \
     -t ${LATEST_CONTAINER_IMAGE_TAG} -t ${LATEST_CONTAINER_IMAGE_TAG_ALIAS} .
 
-if [[ "${3}" == "skip-live" ]]; then
+if [[ $2 == 'skip-live' ]]; then
     printf "Just building base + latest images & skipping runnig post build scripts\n"; exit 0;
 fi
 
@@ -77,9 +85,8 @@ sleep 12;
 docker exec -it --user docker ${LATEST_CONTAINER_NAME} arch
 
 # install tools in running container
-printf "Installing k8s cluster (${K8S_CLUSTER_TYPE}) with tools & default apps in latest container\n"
-docker exec -it --user docker ${LATEST_CONTAINER_NAME} /scripts/post_build.sh ${K8S_CLUSTER_TYPE} yes || true
-#docker exec -it ${LATEST_CONTAINER_NAME} rm -rf /scripts || true
+printf "Installing k8s cluster (${K8S_CLUSTER}) with tools & default apps in latest container\n"
+docker exec -it --user docker ${LATEST_CONTAINER_NAME} /bin/bash -c "source /scripts/install.sh && install_k8s_cluster minikube '${K8S_CLUSTER_VERSION}' yes" || true
 
 ### 3) export final container with k8s cluster running with apps deployed
 printf "Saving running container as final k8s cluster image\n"
@@ -105,7 +112,7 @@ docker stop ${FINAL_CONTAINER_NAME}
 docker kill ${LATEST_CONTAINER_NAME} ${FINAL_CONTAINER_NAME} || true
 
 # Push images if asked for
-if [[ "${3}" == 'push' ]]; then
+if [[ $2 == 'push' ]]; then
     printf "\n\n\n=========> Pushing images to docker registry\n"
     docker push ${BASE_CONTAINER_IMAGE_TAG}
     docker push ${BASE_CONTAINER_IMAGE_TAG_ALIAS}

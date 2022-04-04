@@ -1,0 +1,14 @@
+# https://taskfile.dev
+
+version: '3'
+
+env:
+  NAMESPACE: '{{.NAMESPACE | default "default"}}'
+
+tasks:
+  deploy:
+    cmds:
+      - helm install {{.NAMESPACE}}-mysql bitnami/mysql --set auth.rootPassword=root --set primary.service.type=NodePort --set primary.service.nodePort=3306
+  delete:
+    cmds:
+      - helm delete {{.NAMESPACE}}-mysql
