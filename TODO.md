@@ -1,7 +1,3 @@
-### Cleanups
-- build sarathy from root dir & copy over self code into image
-- 
-
 ### Install below tools & more and part of MVP
 - docker, podman
 - minikube, k3s + k3d, kind, microk8s ?
@@ -10,6 +6,21 @@
 - hugo docs & other docs apps like netifly etc
 - image vulnerability scanner
 - base image local registry ?
+
+### Cleanups & usage improvements, user examples/samples
+- app cmd as alias for task cmd
+- add more apps/... besides mysql with varioud ci/cd techs used as examples etc
+- build sarathy from root dir & copy over self code into image
+- better leverage docker layer cache by splitting _utils.sh into images/scripts/...sh/es i.e multiple files for each toolchain
+- docker compose for running sarathy containers
+- TheAlgorithms as part of examples into latest image
+- Skaffold, tilt etc ci/cd tools examples dir copied into k8s image
+
+### Commit running container for end user:
+- sarathy run.sh script like we have for k3s such that all is comprised as part of it
+- run with while loop such that we docker commit the live image every X secs
+- run container if not already running, docker ps | grep sarathy
+- docker run .... && while true; do docker commit ...; sleep X; done
 
 ### Automated testing for below use-cases
 - test that all container tools, k8s tools are working
@@ -23,28 +34,28 @@
 /usr/local/go/bin:/usr/local/bin/tools/rust:/home/docker/.krew/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 - test that minikube image has mysql, krew, helm etc working
 
-### monaco editor
-- monaco editor with various github algorithms in diff langs & other open source codes
-  just like these 2
-  https://goplay.tools/
-  https://goplay.space/
-
-### misc tools
-- https://github.com/nvbn/thefuck
-- https://github.com/nocodb/nocodb
-- https://github.com/nextcloud/docker
-- https://education.github.com/toolbox
-
 ### Next tools to add:
 - benchmarking tools this & others : https://github.com/sharkdp/hyperfine
 - kubecost
 - minikube dashboard inside minikube cluster itself
 - minikube ingress (nginx/ambassador)
 
+### Monaco editor
+- monaco editor with various github algorithms in diff langs & other open source codes
+  just like these 2
+  https://goplay.tools/
+  https://goplay.space/
+
+### Misc tools
+- https://github.com/nvbn/thefuck
+- https://github.com/nocodb/nocodb
+- https://github.com/nextcloud/docker
+- https://education.github.com/toolbox
+
 ### Desktop / GUI support
 - enable support for cross platform desktop GUI for sarathy docker conatiner
 
-### Next Steps:
+### Misc Items:
 - IMP: disable SWAP ?????? test with disabling swap and if it works then just keep it disabled for best performance of k8s cluster
 - install bash testing framwwork and run bash tests for what all we need to test
 - install & test kube-cost plugin
@@ -72,8 +83,3 @@
 - Support for package VERSIONs based on conf file for x86/arm64 etc
 - support toolchain in other flavors too (arch, redhat, alpine etc)
 - see if sarathy can run just fine on containerd , podman etc i.e other container engines than just docker
-
-### Commit running container for end user:
-- run with while loop such that we docker commit the live image every X secs
-- run container if not already running, docker ps | grep sarathy
-- docker run .... && while true; do docker commit ...; sleep X; done
