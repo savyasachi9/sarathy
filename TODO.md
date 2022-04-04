@@ -1,3 +1,7 @@
+### Cleanups
+- build sarathy from root dir & copy over self code into image
+- 
+
 ### Install below tools & more and part of MVP
 - docker, podman
 - minikube, k3s + k3d, kind, microk8s ?
