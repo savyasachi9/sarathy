@@ -7,29 +7,29 @@
 # latest with PLT    -> sarathy:latest-ARCH-VERSION / sarathy:latest-amd64-v0.1.0 | sarathy:latest-arm64-v0.1.0
 # prog lang tools    -> sarathy:latest-ARCH  / sarathy:latest-amd64 | sarathy:latest-arm64
 #
-# live k8s cluster   -> sarathy:K8S_CLUSTER-K8S_VERSION-ARCH-VERSION / sarathy:minikube-amd64-v0.1.0 | sarathy:minikube-arm64-v0.1.0
+# live k8s images    -> sarathy:K8S_CLUSTER-K8S_VERSION-ARCH-VERSION / sarathy:minikube-amd64-v0.1.0 | sarathy:minikube-arm64-v0.1.0
 #                    -> sarathy:K8S_CLUSTER-K8S_VERSION-ARCH         / sarathy:minikube-amd64 | sarathy:minikube-amd64
 #
 # sarathy-base-amd64 -> sarathy:latest-amd64 -> sarathy:minikube-amd64 | sarathy:k3s-amd64
 #
 # usage:
-# ./build.sh amd64 | ./build.sh arm64
-# ./build.sh amd64 skip-live
-# ./build.sh amd64 push
-# K8S_VERSION=v1.23.3 K8S_CLUSTER=minikube ./build.sh amd64
+# ./build.sh skip-live
+# ./build.sh push
+# K8S_VERSION=v1.23.3 K8S_CLUSTER=minikube ./build.sh
 set -e
 DIR=$(dirname $0)
 VERSION=v0.1.0
 
-ARCH=${1}
+ARCH=$(arch)
 ARCH_ALIAS=${ARCH}
-if [[ "${ARCH}" == 'amd64' ]]; then ARCH_ALIAS='x86_64'; fi
+if [[ $ARCH == 'x86_64' ]]; then ARCH='amd64'; fi
+if [[ $ARCH == 'amd64' ]]; then ARCH_ALIAS='x86_64'; fi
 
 # arch's & k8s clusters we support, have tested for & verified everything with
 ARCH_SUPPORTED=('amd64' 'arm64')
 K8S_CLUSTERS_SUPPORTED=('minikube')
-if [[ ! " ${ARCH_SUPPORTED[*]} " =~ " ${1} " ]]; then
-    printf "Invalid ARCH value given, supported arch are:\n${ARCH_SUPPORTED[*]}\n"
+if [[ ! " ${ARCH_SUPPORTED[*]} " =~ " ${ARCH} " ]]; then
+    printf "Invalid ARCH(${ARCH}) value given, supported arch are:\n${ARCH_SUPPORTED[*]}\n"
     exit 1
 fi
 
@@ -69,7 +69,7 @@ docker build --squash -f Dockerfile --platform linux/${ARCH} --target sarathy-la
     --build-arg VERSION=${VERSION} --build-arg ARCH=${ARCH} --build-arg ARCH_ALIAS=${ARCH_ALIAS} \
     -t ${LATEST_CONTAINER_IMAGE_TAG} -t ${LATEST_CONTAINER_IMAGE_TAG_ALIAS} .
 
-if [[ $2 == 'skip-live' ]]; then
+if [[ $1 == 'skip-live' ]]; then
     printf "Just building base + latest images & skipping runnig post build scripts\n"; exit 0;
 fi
 
@@ -112,7 +112,7 @@ docker stop ${FINAL_CONTAINER_NAME}
 docker kill ${LATEST_CONTAINER_NAME} ${FINAL_CONTAINER_NAME} || true
 
 # Push images if asked for
-if [[ $2 == 'push' ]]; then
+if [[ $1 == 'push' ]]; then
     printf "\n\n\n=========> Pushing images to docker registry\n"
     docker push ${BASE_CONTAINER_IMAGE_TAG}
     docker push ${BASE_CONTAINER_IMAGE_TAG_ALIAS}

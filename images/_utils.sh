@@ -233,6 +233,7 @@ install_k8s_default_apps(){
     # Install ingress(nginx/ambassador/gloo etc), redis, mysql etc using helm charts
     # TODO: add support for nginx, redis, mongo etc @ k8s cluster
 
+    # TODO: do this via apps/mysql/Taskfile/deploy instead
     NAMESPACE=default
     helm install $NAMESPACE-mysql bitnami/mysql \
         --set auth.rootPassword=root --set primary.service.type=NodePort --set primary.service.nodePort=3306

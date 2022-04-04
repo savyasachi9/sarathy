@@ -8,15 +8,16 @@
 - base image local registry ?
 
 ### Automated testing for below use-cases
+- test that all container tools, k8s tools are working
+  echo $PATH
 - test that all web tools are working (9090, 9091, 9092, minikube/8080)
 - test that all bash completions work
 - test that all PLT's are working with debugger (c/cpp, php, python, go)
+- that we can save files using vscode on the container & in users mounted dir
 - test that we can save updates to vscode themes
 - test that we can save code updates under /src /src/examples /src/user /home/docker
-- test that all container tools, k8s tools are working
-echo $PATH
 /usr/local/go/bin:/usr/local/bin/tools/rust:/home/docker/.krew/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-- test that minikube image has mysql, krew, etc working
+- test that minikube image has mysql, krew, helm etc working
 
 ### monaco editor
 - monaco editor with various github algorithms in diff langs & other open source codes
