@@ -83,6 +83,8 @@ tools
 
 ### Project Goals
 - Help one stay upto date with modern tooling to solve problems & keep experimenting forever.
+- Bridge the ever growing gap between enterpeise & academia where academia is behind what's used in enterprise.
+- Lower the entry bar for to get started with building cli/container/web applications.
 - 10+ users by EOY 2022, 100+ by EOY 2023, 1000+ by EOY 2024 ...
 
 ### Thank-yous & Credits, References
