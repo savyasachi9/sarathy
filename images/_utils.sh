@@ -1,5 +1,33 @@
 #!/usr/bin/env bash
 
+install_web_tools(){
+    TOOLS_PATH=/usr/local/bin/tools/web && sudo mkdir -p $TOOLS_PATH
+
+    if [[ $ARCH == 'amd64' ]]; then \
+        # speedtest (TODO: see if this is available for arm64)
+        curl -s https://install.speedtest.net/app/cli/install.deb.sh | bash; \
+        sudo apt install -y speedtest && ln -s $(which speedtest) $TOOLS_PATH/speedtest
+
+        # gotty/webtty
+        wget -O gotty.tar.gz https://github.com/yudai/gotty/releases/download/v1.0.1/gotty_linux_amd64.tar.gz \
+        && tar -xzf gotty.tar.gz && chmod +x gotty && mv gotty /usr/local/bin && ln -s $(which gotty) $TOOLS_PATH/gotty
+    fi
+
+    # code-server/vscode in browser
+    VSCODE_EXT_DIR=$HOME/.local/share/code-server/extensions
+    VSCODE_SETTINGS_DIR=$HOME/.local/share/code-server/User
+    mkdir -p $VSCODE_EXT_DIR $VSCODE_SETTINGS_DIR
+
+    wget -q -O code-server.deb https://github.com/coder/code-server/releases/download/v4.2.0/code-server_4.2.0_${ARCH}.deb \
+    && dpkg -i code-server.deb && ln -s $(which code-server) $TOOLS_PATH/
+
+    # TODO: move go.toolsManagement to install_go section
+    echo '{
+    "go.toolsManagement.autoUpdate": false,
+    "workbench.colorTheme": "Default Dark+"
+}' | tee $VSCODE_SETTINGS_DIR/settings.json
+}
+
 install_candcpp(){
     # $1 VERSION         (default GNU gdb 9.2)
     # $2 CODE_SERVER_EXT (default no)
@@ -94,34 +122,6 @@ install_java(){
 
 # install_scratch(){
 # }
-
-install_web_tools(){
-    TOOLS_PATH=/usr/local/bin/tools/web && sudo mkdir -p $TOOLS_PATH
-
-    if [[ $ARCH == 'amd64' ]]; then \
-        # speedtest (TODO: see if this is available for arm64)
-        curl -s https://install.speedtest.net/app/cli/install.deb.sh | bash; \
-        sudo apt install -y speedtest && ln -s $(which speedtest) $TOOLS_PATH/speedtest
-
-        # gotty/webtty
-        wget -O gotty.tar.gz https://github.com/yudai/gotty/releases/download/v1.0.1/gotty_linux_amd64.tar.gz \
-        && tar -xzf gotty.tar.gz && chmod +x gotty && mv gotty /usr/local/bin && ln -s $(which gotty) $TOOLS_PATH/gotty
-    fi
-
-    # code-server/vscode in browser
-    VSCODE_EXT_DIR=$HOME/.local/share/code-server/extensions
-    VSCODE_SETTINGS_DIR=$HOME/.local/share/code-server/User
-    mkdir -p $VSCODE_EXT_DIR $VSCODE_SETTINGS_DIR
-
-    wget -q -O code-server.deb https://github.com/coder/code-server/releases/download/v4.2.0/code-server_4.2.0_${ARCH}.deb \
-    && dpkg -i code-server.deb && ln -s $(which code-server) $TOOLS_PATH/
-
-    # TODO: move go.toolsManagement to install_go section
-    echo '{
-    "go.toolsManagement.autoUpdate": false,
-    "workbench.colorTheme": "Default Dark+"
-}' | tee $VSCODE_SETTINGS_DIR/settings.json
-}
 
 install_build_tools(){
     TOOLS_PATH=/usr/local/bin/tools/build-tools && sudo mkdir -p $TOOLS_PATH
