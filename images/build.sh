@@ -60,7 +60,7 @@ FINAL_CONTAINER_NAME=sarathy-${K8S_CLUSTER}-${ARCH}
 printf "Building for ARCH($ARCH) & K8S_CLUSTER($K8S_CLUSTER) K8S_VERSION($K8S_VERSION)\n"
 # IMP: if below are empty then c/cpp debugger & default vscode settings won't work
 # TODO: move these as part of examples default settings & copy from there
-mkdir -p ./vscode/extensions-${ARCH} ./vscode/.vscode
+mkdir -p ./vscode/extensions-${ARCH} ./vscode/.vscode ./examples
 
 ### 0) build base image for asked arch
 docker build --squash -f Dockerfile --platform linux/${ARCH} --target sarathy-base \
