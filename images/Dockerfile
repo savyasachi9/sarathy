@@ -81,13 +81,14 @@ COPY ./examples /src/examples
 
 ENV PATH="/usr/local/go/bin:${PATH}"
 RUN /bin/bash -c 'source /scripts/install.sh; install_candcpp NA yes' && \
-    /bin/bash -c 'source /scripts/install.sh; install_php 8.1 yes' && \
+    /bin/bash -c 'source /scripts/install.sh; install_php 8.1 yes' && systemctl enable html-server && \
     /bin/bash -c 'source /scripts/install.sh; install_python 3.8 yes' && \
-    /bin/bash -c 'source /scripts/install.sh; install_golang 1.18beta2 yes' && \
-    systemctl enable html-server
+    /bin/bash -c 'source /scripts/install.sh; install_golang 1.18beta2 yes' && go clean --cache
 
 RUN chown -R $USER $HOME /src && \
     sed -i '/export PATH/d' /etc/profile.d/_env.sh && \
-    echo "export PATH=${PATH}" >> /etc/profile.d/_env.sh
+    echo "export PATH=${PATH}" >> /etc/profile.d/_env.sh && \
+    apt clean && apt autoclean && apt autoremove && apt autoremove --purge -y
 
 WORKDIR /src
+EXPOSE 9090-9099
