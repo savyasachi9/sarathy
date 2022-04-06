@@ -24,7 +24,8 @@ install_web_tools(){
     # TODO: move go.toolsManagement to install_go section
     echo '{
     "go.toolsManagement.autoUpdate": false,
-    "workbench.colorTheme": "Default Dark+"
+    "workbench.colorTheme": "Default Dark+",
+    "telemetry.telemetryLevel": "off"
 }' | tee $VSCODE_SETTINGS_DIR/settings.json
 }
 

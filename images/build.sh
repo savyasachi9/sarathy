@@ -12,18 +12,27 @@
 #
 # sarathy-base-amd64 -> sarathy:latest-amd64 -> sarathy:minikube-amd64 | sarathy:k3s-amd64
 #
-# usage:
-# ./build.sh skip-live
-# ./build.sh push
+# usage: (amd64/arm64 for ARG $1)
+# ./build.sh amd64
+# ./build.sh amd64 skip-live
+# ./build.sh amd64 push
+# ./build.sh amd64 just-push
 # K8S_VERSION=v1.23.3 K8S_CLUSTER=minikube ./build.sh
 set -e
 DIR=$(dirname $0)
 VERSION=v0.1.0
 
-ARCH=$(arch)
+ARCH=$1 #$(arch)
 ARCH_ALIAS=${ARCH}
 if [[ $ARCH == 'x86_64' ]]; then ARCH='amd64'; fi
 if [[ $ARCH == 'amd64' ]]; then ARCH_ALIAS='x86_64'; fi
+
+SKIP_LIVE='no'
+PUSH_IMAGES='no'
+JUST_PUSH_IMAGES='no'
+if  [[ $2 == 'skip-live' ]]; then SKIP_LIVE='yes'; fi
+if  [[ $2 == 'push' ]]; then PUSH_IMAGES='yes'; fi
+if  [[ $2 == 'just-push' ]]; then JUST_PUSH_IMAGES='yes'; fi
 
 # arch's & k8s clusters we support, have tested for & verified everything with
 ARCH_SUPPORTED=('amd64' 'arm64')
@@ -57,6 +66,26 @@ FINAL_CONTAINER_IMAGE_TAG=${IMAGE_REPOSITORY}/sarathy:${K8S_CLUSTER}${K8S_VERSIO
 FINAL_CONTAINER_IMAGE_TAG_ALIAS=${IMAGE_REPOSITORY}/sarathy:${K8S_CLUSTER}${K8S_VERSION_TAG}-${ARCH}
 FINAL_CONTAINER_NAME=sarathy-${K8S_CLUSTER}-${ARCH}
 
+push_images(){
+  printf "\n\n\n=========> Pushing base images to docker registry\n"
+  docker push ${BASE_CONTAINER_IMAGE_TAG}
+  docker push ${BASE_CONTAINER_IMAGE_TAG_ALIAS}
+
+  printf "\n\n\n=========> Pushing latest images to docker registry\n"
+  docker push ${LATEST_CONTAINER_IMAGE_TAG}
+  docker push ${LATEST_CONTAINER_IMAGE_TAG_ALIAS}
+
+  printf "\n\n\n=========> Pushing final images to docker registry\n"
+  docker push ${FINAL_CONTAINER_IMAGE_TAG}
+  docker push ${FINAL_CONTAINER_IMAGE_TAG_ALIAS}
+}
+
+# Skip building & just push images from last build, need to ensure manually that they exist before pushing
+if [[ $JUST_PUSH_IMAGES == 'yes' ]]; then
+  push_images
+  exit 0
+fi
+
 printf "Building for ARCH($ARCH) & K8S_CLUSTER($K8S_CLUSTER) K8S_VERSION($K8S_VERSION)\n"
 # IMP: if below are empty then c/cpp debugger & default vscode settings won't work
 # TODO: move these as part of examples default settings & copy from there
@@ -72,7 +101,7 @@ docker build --squash -f Dockerfile --platform linux/${ARCH} --target sarathy-la
     --build-arg VERSION=${VERSION} --build-arg ARCH=${ARCH} --build-arg ARCH_ALIAS=${ARCH_ALIAS} \
     -t ${LATEST_CONTAINER_IMAGE_TAG} -t ${LATEST_CONTAINER_IMAGE_TAG_ALIAS} .
 
-if [[ $1 == 'skip-live' ]]; then
+if [[ $SKIP_LIVE == 'yes' ]]; then
     printf "Just building base + latest images & skipping runnig post build scripts\n"; exit 0;
 fi
 
@@ -115,14 +144,6 @@ docker stop ${FINAL_CONTAINER_NAME}
 docker kill ${LATEST_CONTAINER_NAME} ${FINAL_CONTAINER_NAME} || true
 
 # Push images if asked for
-if [[ $1 == 'push' ]]; then
-    printf "\n\n\n=========> Pushing images to docker registry\n"
-    docker push ${BASE_CONTAINER_IMAGE_TAG}
-    docker push ${BASE_CONTAINER_IMAGE_TAG_ALIAS}
-
-    docker push ${LATEST_CONTAINER_IMAGE_TAG}
-    docker push ${LATEST_CONTAINER_IMAGE_TAG_ALIAS}
-
-    docker push ${FINAL_CONTAINER_IMAGE_TAG}
-    docker push ${FINAL_CONTAINER_IMAGE_TAG_ALIAS}
+if [[ $PUSH_IMAGES == 'yes' ]]; then
+  push_images
 fi
