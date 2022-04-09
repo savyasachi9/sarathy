@@ -24,34 +24,27 @@ RUN sed -i 's/fd:/unix:/g' /lib/systemd/system/docker.service && \
     echo '{ "experimental": true, "debug" : false, "features": { "buildkit": true } }' > /etc/docker/daemon.json
 
 # Copy over all systemd.services
-COPY ./systemd.services/* /etc/systemd/system/
-COPY ./_utils.sh /scripts/install.sh
+COPY ./images/systemd.services/* /etc/systemd/system/
+COPY ./images/_utils.sh /scripts/install.sh
 RUN chmod +x /scripts/install.sh
+COPY ./apps /src/apps
 
 ### Web tools (accessible over http etc):
 RUN /bin/bash -c 'source /scripts/install.sh; install_web_tools'; \
     # NOTE: gotty isn't available for arm64 yet so webtty service will fail to start there
     systemctl enable webtty; systemctl enable vscode
 
-### Container tools (docker, buildah, podman, k8s clusters etc) :
-RUN /bin/bash -c 'source /scripts/install.sh; install_container_tools';
-
-### Kubernetes tools (k8s clusters, plugins, ci/cd tools etc) :
+### Container & Kubernetes tools (docker, buildah, podman, k8s clusters, plugins, ci/cd tools etc):
 ENV PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
-RUN /bin/bash -c 'source /scripts/install.sh; install_k8s_tools';
+RUN /bin/bash -c 'source /scripts/install.sh; install_container_tools; install_k8s_tools';
 
-### Golang tools
-RUN /bin/bash -c 'source /scripts/install.sh; install_golang_tools'
-
-### Rust tools (binaries, packages built in rustlang)
+### CLI Tools built in diff languages (go, rust, python etc)
 ENV PATH="/usr/local/bin/tools/rust:${PATH}"
-RUN /bin/bash -c 'source /scripts/install.sh; install_rust_tools'
+RUN /bin/bash -c 'source /scripts/install.sh; install_golang_tools; install_rust_tools'; \
+    /bin/bash -c 'source /scripts/install.sh; install_python; install_python_tools'
 
-### Python tools (binaries, packages built in python)
-RUN /bin/bash -c 'source /scripts/install.sh; install_python_tools'
-
-### Build tools
-RUN /bin/bash -c 'source /scripts/install.sh; install_build_tools'
+### Build, Benchmarking & other misc tools
+RUN /bin/bash -c 'source /scripts/install.sh; install_build_tools; install_benchmarking_tools; install_misc_tools'
 
 ### Set user ENV vars (TODO: use bash_profile ???)
 RUN chown -R $USER:$USER $HOME /scripts && \
@@ -61,7 +54,9 @@ RUN chown -R $USER:$USER $HOME /scripts && \
     cat /etc/profile.d/k8s.sh >> /etc/profile.d/_env.sh && \
     echo "source /etc/profile.d/_env.sh" >> $HOME/.bashrc && \
     echo "source /scripts/install.sh" >> $HOME/.bashrc && \
-    echo "alias tools='tree /usr/local/bin/tools'" >> $HOME/.bashrc
+    echo "source /src/apps/app.sh" >> $HOME/.bashrc && \
+    echo "alias tools='tree /usr/local/bin/tools'" >> $HOME/.bashrc && \
+    echo "cd /src" >> $HOME/.bashrc
 
 ### Cleanups : remove these for now with 'unminimize' msg
 RUN rm -rf /usr/local/sbin/unminimize /usr/bin/man /etc/update-motd.d/60-unminimize; \
@@ -72,11 +67,14 @@ RUN rm -rf /usr/local/sbin/unminimize /usr/bin/man /etc/update-motd.d/60-unminim
 FROM sarathy-base as sarathy-latest
 # INFO: we ship the sarathy-latest image with PLT (prog lang tools)
 ### Programming Language/s, vscode/code-server IDE plugins etc :
+# TODO: sarathy:langtools container systemd service, setup and enable
+# TODO: sarathy:latest (w/o amd64/arm64 using buildx), same for sarathy:langtools, i.e use buildx
+
 WORKDIR /tmp
 RUN mkdir -p /tmp/vscode /scripts /src/.vscode /src/examples /src/user
 
-COPY ./vscode/extensions-${ARCH} /tmp/vscode
-COPY ./vscode/.vscode /src/.vscode
+COPY ./images/vscode/extensions-${ARCH} /tmp/vscode
+COPY ./images/vscode/.vscode /src/.vscode
 COPY ./examples /src/examples
 
 ENV PATH="/usr/local/go/bin:${PATH}"

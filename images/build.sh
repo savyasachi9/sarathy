@@ -13,14 +13,18 @@
 # sarathy-base-amd64 -> sarathy:latest-amd64 -> sarathy:minikube-amd64 | sarathy:k3s-amd64
 #
 # usage: (amd64/arm64 for ARG $1)
-# ./build.sh amd64
-# ./build.sh amd64 skip-live
-# ./build.sh amd64 push
-# ./build.sh amd64 just-push
-# K8S_VERSION=v1.23.3 K8S_CLUSTER=minikube ./build.sh
+# ./images/build.sh amd64
+# ./images/build.sh amd64 skip-live
+# ./images/build.sh amd64 push
+# ./images/build.sh amd64 just-push
+# K8S_CLUSTER=minikube ./images/build.sh amd64
+# K8S_CLUSTER=k3s ./images/build.sh amd64
 set -e
 DIR=$(dirname $0)
 VERSION=v0.1.0
+
+# TODO: err / EXIT if not run from sarathy root
+
 
 ARCH=$1 #$(arch)
 ARCH_ALIAS=${ARCH}
@@ -36,7 +40,7 @@ if  [[ $2 == 'just-push' ]]; then JUST_PUSH_IMAGES='yes'; fi
 
 # arch's & k8s clusters we support, have tested for & verified everything with
 ARCH_SUPPORTED=('amd64' 'arm64')
-K8S_CLUSTERS_SUPPORTED=('minikube')
+K8S_CLUSTERS_SUPPORTED=('minikube') # minikube, k3s, kind, k0s, microk8s
 if [[ ! " ${ARCH_SUPPORTED[*]} " =~ " ${ARCH} " ]]; then
     printf "Invalid ARCH(${ARCH}) value given, supported arch are:\n${ARCH_SUPPORTED[*]}\n"
     exit 1
@@ -89,15 +93,15 @@ fi
 printf "Building for ARCH($ARCH) & K8S_CLUSTER($K8S_CLUSTER) K8S_VERSION($K8S_VERSION)\n"
 # IMP: if below are empty then c/cpp debugger & default vscode settings won't work
 # TODO: move these as part of examples default settings & copy from there
-mkdir -p ./vscode/extensions-${ARCH} ./vscode/.vscode ./examples
+mkdir -p ${DIR}/vscode/extensions-${ARCH} ${DIR}/vscode/.vscode
 
 ### 0) build base image for asked arch
-docker build --squash -f Dockerfile --platform linux/${ARCH} --target sarathy-base \
+docker build --squash -f ${DIR}/Dockerfile --platform linux/${ARCH} --target sarathy-base \
     --build-arg VERSION=${VERSION} --build-arg ARCH=${ARCH} --build-arg ARCH_ALIAS=${ARCH_ALIAS} \
     -t ${BASE_CONTAINER_IMAGE_TAG} -t ${BASE_CONTAINER_IMAGE_TAG_ALIAS} .
 
 ### 1) build latest image for asked arch
-docker build --squash -f Dockerfile --platform linux/${ARCH} --target sarathy-latest \
+docker build --squash -f ${DIR}/Dockerfile --platform linux/${ARCH} --target sarathy-latest \
     --build-arg VERSION=${VERSION} --build-arg ARCH=${ARCH} --build-arg ARCH_ALIAS=${ARCH_ALIAS} \
     -t ${LATEST_CONTAINER_IMAGE_TAG} -t ${LATEST_CONTAINER_IMAGE_TAG_ALIAS} .
 
