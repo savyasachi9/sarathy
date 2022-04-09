@@ -1,18 +1,16 @@
 ### Install below tools & more and part of MVP
-- docker, podman
-- minikube, k3s + k3d, kind, microk8s ?
-- skaffold, kubectl, helm, tilt, devspace, k9s
-- bat, starship, and other rust linux bash cmds alternatives for gnu bash cmds
+- k3s + k3d, kind, k0s, vmware-tanzu, microk8s ?
+- devspace
 - hugo docs & other docs apps like netifly etc
 - image vulnerability scanner
-- base image local registry ?
+- local image registry
 
 ### Cleanups & usage improvements, user examples/samples
 - app cmd as alias for task cmd
 - add more apps/... besides mysql with varioud ci/cd techs used as examples etc
 - build sarathy from root dir & copy over self code into image
 - better leverage docker layer cache by splitting _utils.sh into images/scripts/...sh/es i.e multiple files for each toolchain
-- docker compose for running sarathy containers
+- docker compose for running sarathy containers ???
 - TheAlgorithms as part of examples into latest image
 - Skaffold, tilt etc ci/cd tools examples dir copied into k8s image
 
@@ -35,7 +33,12 @@
 - test that minikube image has mysql, krew, helm etc working
 
 ### Next tools to add:
-- benchmarking tools this & others : https://github.com/sharkdp/hyperfine
+- lazydocker
+- wtf cli dashboard
+- benchmarking tools this & others :
+  https://github.com/sharkdp/hyperfine
+  https://github.com/wg/wrk
+  https://github.com/trimstray/htrace.sh
 - kubecost
 - minikube dashboard inside minikube cluster itself
 - minikube ingress (nginx/ambassador)
@@ -46,14 +49,19 @@
   https://goplay.tools/
   https://goplay.space/
 
+### Desktop / GUI support
+- enable support for cross platform desktop GUI for sarathy docker conatiner
+
 ### Misc tools
+- https://github.com/nektos/act
 - https://github.com/nvbn/thefuck
 - https://github.com/nocodb/nocodb
 - https://github.com/nextcloud/docker
 - https://education.github.com/toolbox
-
-### Desktop / GUI support
-- enable support for cross platform desktop GUI for sarathy docker conatiner
+- https://github.com/localstack/localstack
+- https://github.com/sqlmapproject/sqlmap
+- mitm with kubetap
+- https://github.com/docker-mailserver/docker-mailserver
 
 ### Misc Items:
 - IMP: disable SWAP ?????? test with disabling swap and if it works then just keep it disabled for best performance of k8s cluster

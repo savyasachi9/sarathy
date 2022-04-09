@@ -53,27 +53,29 @@ docker exec -it --user docker sarathy /bin/bash -c 'mysql -h sarathy -u root -pr
 tools
 /usr/local/bin/tools
 ├── build-tools
-│   └── task
+│   └── [task](https://taskfile.dev) YAML based build tool / task runner
 ├── container
 │   ├── containerd
 │   ├── docker
 │   └── podman
 ├── k8s
-│   ├── helm
-│   ├── k9s
-│   ├── krew
-│   ├── kubectl
-│   ├── kustomize
-│   ├── minikube
-│   ├── skaffold
-│   └── tilt
+│   ├── [helm](https://github.com/helm/helm) kubernetes package manager
+│   ├── [k9s](https://github.com/derailed/k9s) CLI dashboard to manage kubernetes  clusters
+│   ├── [krew](https://krew.sigs.k8s.io/) kubectl package manager
+│   ├── [kubectl](https://kubernetes.io/docs/reference/kubectl/) kubernetes control tool
+│   ├── [kustomize](https://kustomize.io/) kubernetes YAML configuration management
+│   ├── [skaffold](https://skaffold.dev/) kubernetes CI/CD
+│   └── [tilt](https://tilt.dev/) kubernetes CI/CD
+├── misc
+│   ├── man   -> [tldr](https://tldr.sh/) simplified man pages
 ├── rust
-│   ├── bat   -> batcat
-│   ├── fd    -> fdfind
-│   ├── man   -> tldr
-│   └── rgrep -> rg
+│   ├── bat   -> [batcat](https://github.com/sharkdp/bat) modern 'cat' cmd clone with colors
+│   ├── fd    -> [fdfind](https://github.com/sharkdp/fd) simpler & faster 'find' cmd
+│   └── rgrep -> [rg](https://github.com/BurntSushi/ripgrep) recursive 'grep' cmd with regex respecting gitignore
 └── web
-    └── code-server
+    └── [code-server](https://github.com/coder/code-server) VS Code in browser
+    └── [gotty](https://github.com/yudai/gotty) share terminal over http
+    └── [speedtest](https://www.speedtest.net/apps/cli) test internet speed from cli
 ```
 
 ### Target Audience
