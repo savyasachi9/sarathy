@@ -1,0 +1,26 @@
+# https://taskfile.dev
+version: '3'
+env:
+  NAMESPACE: '{{.NAMESPACE | default "default"}}'
+  NAME: redis
+
+tasks:
+  deploy:
+      # https://github.com/bitnami/charts/tree/master/bitnami/redis/#installing-the-chart
+      # --set auth.password=secretpassword
+    cmds:
+        # multi line example (each line should be terminated with semi colon)
+      - >-
+        helm install {{.NAMESPACE}}-redis bitnami/{{.NAME}} --set replica.replicaCount=0 --set master.service.type=NodePort --set master.service.nodePorts.redis=6379;
+
+        kubectl wait --for=condition=ready --timeout=90s --all pods
+  delete:
+    cmds:
+      - helm delete {{.NAMESPACE}}-{{.NAME}}
+  test:
+    cmds:
+      - kubectl get pods | grep {{.NAME}}
+      # test for redis cli
+  edit-cfg:
+    cmds:
+      - vi /src/user/apps/k8s/dbs/redis.yaml

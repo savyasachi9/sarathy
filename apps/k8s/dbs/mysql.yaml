@@ -18,4 +18,7 @@ tasks:
       # from sarathy container
       - mysql -h sarathy -u root -proot -e 'show databases;'
       # from sarathy container's k8s cluster
-      - 
+
+  edit-cfg:
+    cmds:
+      - code-server /src/user/apps/k8s/dbs/mysql.yaml
