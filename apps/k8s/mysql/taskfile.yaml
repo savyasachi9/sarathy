@@ -1,0 +1,32 @@
+# https://taskfile.dev
+version: '3'
+
+includes:
+  edit: ../../taskfile-lib/edit.yaml
+
+dotenv: ['{{.K8S_APPS}}/.env']
+
+tasks:
+  deploy:
+    cmds:
+      - >-
+        helm install {{.NAMESPACE}}-{{.APP_NAME}} bitnami/mysql
+          --set auth.rootPassword=root --set primary.service.type=NodePort --set primary.service.nodePort=3306;
+
+        kubectl wait --for=condition=ready --timeout=60s --all pods
+
+  delete:
+    cmds:
+      - helm delete {{.NAMESPACE}}-{{.APP_NAME}}
+
+  install-tools:
+    cmds:
+      - sudo apt -y install mysql-client
+
+  test:
+    cmds:
+      - kubectl get pods -n {{.NAMESPACE}} | grep {{.APP_NAME}}
+      # from sarathy container
+      - mysql -h sarathy -u root -proot -e 'show databases;'
+      # from sarathy container's k8s cluster
+      - echo "{{.ENV}}"
