@@ -48,35 +48,31 @@ docker exec -it --user docker sarathy /bin/bash -c 'mysql -h sarathy -u root -pr
 
 
 ### Tools & Utils
-```bash
 # list of available tools & utils
-tools
-/usr/local/bin/tools
-├── build-tools
-│   └── [task](https://taskfile.dev) YAML based build tool / task runner
-├── container
-│   ├── containerd
-│   ├── docker
-│   └── podman
-├── k8s
-│   ├── [helm](https://github.com/helm/helm) kubernetes package manager
-│   ├── [k9s](https://github.com/derailed/k9s) CLI dashboard to manage kubernetes  clusters
-│   ├── [krew](https://krew.sigs.k8s.io/) kubectl package manager
-│   ├── [kubectl](https://kubernetes.io/docs/reference/kubectl/) kubernetes control tool
-│   ├── [kustomize](https://kustomize.io/) kubernetes YAML configuration management
-│   ├── [skaffold](https://skaffold.dev/) kubernetes CI/CD
-│   └── [tilt](https://tilt.dev/) kubernetes CI/CD
-├── misc
-│   ├── man   -> [tldr](https://tldr.sh/) simplified man pages
-├── rust
-│   ├── bat   -> [batcat](https://github.com/sharkdp/bat) modern 'cat' cmd clone with colors
-│   ├── fd    -> [fdfind](https://github.com/sharkdp/fd) simpler & faster 'find' cmd
-│   └── rgrep -> [rg](https://github.com/BurntSushi/ripgrep) recursive 'grep' cmd with regex respecting gitignore
-└── web
-    └── [code-server](https://github.com/coder/code-server) VS Code in browser
-    └── [gotty](https://github.com/yudai/gotty) share terminal over http
-    └── [speedtest](https://www.speedtest.net/apps/cli) test internet speed from cli
-```
+- build-tools
+  * [task](https://taskfile.dev) (yaml based build tool / task runner)
+- containers
+  * containerd
+  * docker
+  * podman
+- kubernetes/k8s
+  * [kubectl](https://kubernetes.io/docs/reference/kubectl/) (k8s control tool)
+  * [krew](https://krew.sigs.k8s.io/) (kubectl package manager)
+  * [kustomize](https://kustomize.io/) (k8s configuration management)
+  * [helm](https://github.com/helm/helm) (k8s package manager)
+  * [k9s](https://github.com/derailed/k9s) (cli dashboard to manage k8s clusters)
+  * [skaffold](https://skaffold.dev/) (ci/cd)
+  * [tilt](https://tilt.dev/) (ci/cd)
+- misc
+  * man   -> [tldr](https://tldr.sh/) (simplified man pages)
+- rust
+  * bat   -> [batcat](https://github.com/sharkdp/bat) (modern 'cat' cmd clone with colors)
+  * fd    -> [fdfind](https://github.com/sharkdp/fd) (simpler & faster 'find' cmd)
+  * rgrep -> [rg](https://github.com/BurntSushi/ripgrep) (recursive 'grep' cmd with regex respecting gitignore)
+- web
+  * [code-server](https://github.com/coder/code-server) (vs-code in browser)
+  * [gotty](https://github.com/yudai/gotty) (share terminal over http)
+  * [speedtest](https://www.speedtest.net/apps/cli) (test internet speed from cli)
 
 ### Target Audience
 - Students (Grade 6+ ---> PHD)
