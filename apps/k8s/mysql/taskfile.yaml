@@ -10,11 +10,10 @@ tasks:
   deploy:
     cmds:
       - >-
-        helm install {{.NAMESPACE}}-{{.APP_NAME}} bitnami/mysql
+        helm install {{.NAMESPACE}}-{{.APP_NAME}} bitnami/mysql \
           --set auth.rootPassword=root --set primary.service.type=NodePort --set primary.service.nodePort=3306;
 
-        kubectl wait --for=condition=ready --timeout=60s --all pods
-
+      - kubectl wait --for=condition=ready --timeout=60s --all pods;
   delete:
     cmds:
       - helm delete {{.NAMESPACE}}-{{.APP_NAME}}

@@ -251,10 +251,10 @@ install_k8s_minikube(){
 install_k8s_default_apps(){
     # Install ingress(nginx/ambassador/gloo etc), redis, mysql etc using helm charts
     # TODO: add support for nginx, redis, mongo etc @ k8s cluster
-    task -t /src/apps/k8s/mysql/taskfile.yaml deploy
-    task -t /src/apps/k8s/mysql/taskfile.yaml install-tools
-    task -t /src/apps/k8s/redis/taskfile.yaml deploy
-    task -t /src/apps/k8s/redis/taskfile.yaml install-tools
+    app mysql deploy
+    app mysql install-tools
+    app redis deploy
+    app redis install-tools
 }
 
 install_gcloud_cli(){

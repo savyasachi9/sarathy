@@ -16,7 +16,7 @@ tasks:
           --set auth.enabled=false --set replica.replicaCount=0 \
           --set master.service.type=NodePort --set master.service.nodePorts.redis=6379;
 
-        kubectl wait --for=condition=ready --timeout=60s --all pods
+        kubectl wait --for=condition=ready --timeout=60s --all pods;
   install-tools:
     cmds:
       - sudo apt -y install redis-tools
