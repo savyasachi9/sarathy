@@ -1,0 +1,15 @@
+# https://taskfile.dev
+version: '3'
+tasks:
+  # edit app's taskfile.yaml which is it's CFG/config
+  cfg:
+    cmds:
+      - "{{.EDITOR}} {{.TASKFILE}}"
+
+  cfg-k8s:
+    cmds:
+      - "{{.EDITOR}} {{.APP_DIR}}"
+
+  src:
+    cmds:
+      - 'echo "TODO: implement me"'

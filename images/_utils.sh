@@ -6,11 +6,11 @@ install_web_tools(){
     if [[ $ARCH == 'amd64' ]]; then \
         # speedtest (TODO: see if this is available for arm64)
         curl -s https://install.speedtest.net/app/cli/install.deb.sh | bash; \
-        sudo apt install -y speedtest && ln -s $(which speedtest) $TOOLS_PATH/speedtest
+        sudo apt install -y speedtest && ln -s $(which speedtest) $TOOLS_PATH
 
         # gotty/webtty
         wget -O gotty.tar.gz https://github.com/yudai/gotty/releases/download/v1.0.1/gotty_linux_amd64.tar.gz \
-        && tar -xzf gotty.tar.gz && chmod +x gotty && mv gotty /usr/local/bin && ln -s $(which gotty) $TOOLS_PATH/gotty
+        && tar -xzf gotty.tar.gz && chmod +x gotty && mv gotty /usr/local/bin && ln -s $(which gotty) $TOOLS_PATH
     fi
 
     # code-server/vscode in browser
@@ -19,19 +19,40 @@ install_web_tools(){
     mkdir -p $VSCODE_EXT_DIR $VSCODE_SETTINGS_DIR
 
     wget -q -O code-server.deb https://github.com/coder/code-server/releases/download/v4.2.0/code-server_4.2.0_${ARCH}.deb \
-    && dpkg -i code-server.deb && ln -s $(which code-server) $TOOLS_PATH/
+    && dpkg -i code-server.deb && ln -s $(which code-server) $TOOLS_PATH
 
     # TODO: move go.toolsManagement to install_go section
     echo '{
     "go.toolsManagement.autoUpdate": false,
-    "workbench.colorTheme": "Default Dark+"
+    "workbench.colorTheme": "Default Dark+",
+    "telemetry.telemetryLevel": "off"
 }' | tee $VSCODE_SETTINGS_DIR/settings.json
+}
+
+install_build_tools(){
+    TOOLS_PATH=/usr/local/bin/tools/build-tools && sudo mkdir -p $TOOLS_PATH
+    wget -q -O task.deb https://github.com/go-task/task/releases/download/v3.12.0/task_linux_${ARCH}.deb && \
+        dpkg -i task.deb && \
+        sudo ln -s $(which task) $TOOLS_PATH && \
+        sudo ln -s $(which make) $TOOLS_PATH
+}
+
+install_benchmarking_tools(){
+    TOOLS_PATH=/usr/local/bin/tools/benchmarking && sudo mkdir -p $TOOLS_PATH
+    # TODO: move this to rust section & symlink here
+    wget -q -O hyperfine.deb https://github.com/sharkdp/hyperfine/releases/download/v1.13.0/hyperfine_1.13.0_${ARCH}.deb \
+        && sudo dpkg -i hyperfine.deb && ln -s $(which hyperfine) $TOOLS_PATH
+}
+
+install_misc_tools(){
+    TOOLS_PATH=/usr/local/bin/tools/misc && sudo mkdir -p $TOOLS_PATH
+    sudo apt -y install tldr && tldr ls && ln -s $(which tldr) $TOOLS_PATH
 }
 
 install_candcpp(){
     # $1 VERSION         (default GNU gdb 9.2)
     # $2 CODE_SERVER_EXT (default no)
-    sudo apt -y update && sudo apt -y -qq install \
+    sudo apt -y update && sudo DEBIAN_FRONTEND=noninteractive apt -y -qq install \
     build-essential gdb libncurses5-dev libncursesw5-dev
 
     if [[ $2 == 'yes' ]]; then code-server --install-extension /tmp/vscode/*.vsix; fi
@@ -42,9 +63,10 @@ install_php(){
     # $2 CODE_SERVER_EXT (default no)
     VER=${1:-'8.1'}
 
-    sudo apt install -y -qq software-properties-common && \
+    sudo DEBIAN_FRONTEND=noninteractive apt install -y -qq software-properties-common && \
     sudo add-apt-repository -y ppa:ondrej/php && \
-    sudo apt -y update && sudo apt -y -qq install php${VER} php${VER}-fpm && \
+    sudo apt -y update && \
+    sudo apt -y -qq install php${VER} php${VER}-fpm && \
     sudo update-alternatives --set php /usr/bin/php${VER}; \
     systemctl disable apache2
 
@@ -63,8 +85,10 @@ install_python(){
 }
 
 install_python_tools(){
-    printf "TODO: fix me"
-    # pip3 install thefuck --user
+    sudo pip3 install thefuck
+    echo 'eval $(thefuck --alias)' | sudo tee -a /etc/profile.d/_env.sh
+
+    # TODO: sylmink this in it's own path
 }
 
 install_golang(){
@@ -99,12 +123,17 @@ install_rust_tools(){
     TOOLS_PATH=/usr/local/bin/tools/rust && sudo mkdir -p $TOOLS_PATH
 
     sudo apt install -y -qq -o Dpkg::Options::="--force-overwrite" \
-    bat ripgrep tldr fd-find && \
-    tldr ls; \
+    bat ripgrep fd-find nmap
+
+    wget -q -O rustscan.deb https://github.com/RustScan/RustScan/releases/download/2.0.1/rustscan_2.0.1_amd64.deb && \
+        sudo dpkg -i rustscan.deb
+
+    # Alot of tools still use cat, grep, find etc cmds so let's not replace them yet...
     ln -s $(which batcat) $TOOLS_PATH/bat && \
     ln -s $(which rg) $TOOLS_PATH/rgrep && \
-    ln -s $(which tldr) $TOOLS_PATH/man && \
-    ln -s $(which fdfind) $TOOLS_PATH/fd
+    ln -s $(which fdfind) $TOOLS_PATH/fd && \
+    ln -s $(which rustscan) $TOOLS_PATH/netscan && \
+    ln -s $(which hyperfine) $TOOLS_PATH
 }
 
 install_java(){
@@ -123,14 +152,6 @@ install_java(){
 # install_scratch(){
 # }
 
-install_build_tools(){
-    TOOLS_PATH=/usr/local/bin/tools/build-tools && sudo mkdir -p $TOOLS_PATH
-    wget -q -O task.deb https://github.com/go-task/task/releases/download/v3.12.0/task_linux_${ARCH}.deb && \
-        dpkg -i task.deb && \
-        sudo ln -s $(which task) $TOOLS_PATH/ && \
-        sudo ln -s $(which make) $TOOLS_PATH/
-}
-
 install_container_tools(){
     # TODO : add docker & other container related tools, like image vulnerability scanner, dive etc
     # nerdctl(for containerd), buildah if not already there
@@ -140,6 +161,12 @@ install_container_tools(){
     && ln -s /usr/bin/docker $TOOLS_PATH \
     && ln -s /usr/bin/podman $TOOLS_PATH \
     && ln -s /usr/bin/containerd $TOOLS_PATH
+
+    wget -q -O ctop https://github.com/bcicen/ctop/releases/download/v0.7.7/ctop-0.7.7-linux-${ARCH} \
+        && chmod +x ctop && sudo mv ./ctop /usr/local/bin && ln -s $(which ctop) $TOOLS_PATH
+
+    wget -q -O lazydocker.tar.gz https://github.com/jesseduffield/lazydocker/releases/download/v0.12/lazydocker_0.12_Linux_${ARCH_ALIAS}.tar.gz \
+        && tar -xzf lazydocker.tar.gz && sudo mv ./lazydocker /usr/local/bin && ln -s $(which lazydocker) $TOOLS_PATH
 }
 
 install_k8s_tools(){
@@ -147,31 +174,31 @@ install_k8s_tools(){
     mkdir -p $TOOLS_PATH
 
     wget -q -O minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-${ARCH} \
-        && chmod +x minikube && mv minikube /usr/local/bin/ && ln -s $(which minikube) $TOOLS_PATH/minikube
+        && chmod +x minikube && mv minikube /usr/local/bin/
 
     wget -q -O kubectl "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/${ARCH}/kubectl" \
-        && chmod +x kubectl && mv kubectl /usr/local/bin/ && ln -s $(which kubectl) $TOOLS_PATH/kubectl
+        && chmod +x kubectl && mv kubectl /usr/local/bin/ && ln -s $(which kubectl) $TOOLS_PATH
 
     wget -q -O helm.tar.gz https://get.helm.sh/helm-v3.7.2-linux-${ARCH}.tar.gz && tar -xzf helm.tar.gz \
-        && chmod +x linux-${ARCH}/helm && mv linux-${ARCH}/helm /usr/local/bin/ && ln -s $(which helm) $TOOLS_PATH/helm
+        && chmod +x linux-${ARCH}/helm && mv linux-${ARCH}/helm /usr/local/bin/ && ln -s $(which helm) $TOOLS_PATH
 
     wget -q -O kustomize.tar.gz https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv4.5.4/kustomize_v4.5.4_linux_${ARCH}.tar.gz \
-        && tar -xzf kustomize.tar.gz && chmod +x kustomize && mv kustomize /usr/local/bin && ln -s $(which kustomize) $TOOLS_PATH/kustomize
+        && tar -xzf kustomize.tar.gz && chmod +x kustomize && mv kustomize /usr/local/bin && ln -s $(which kustomize) $TOOLS_PATH
 
     curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-${ARCH} \
-        && chmod +x skaffold && mv skaffold /usr/local/bin/ && ln -s $(which skaffold) $TOOLS_PATH/skaffold \
+        && chmod +x skaffold && mv skaffold /usr/local/bin/ && ln -s $(which skaffold) $TOOLS_PATH \
         && skaffold config set --global collect-metrics false \
         && skaffold config set --survey --global disable-prompt true
 
     wget -q -O tilt.tar.gz https://github.com/tilt-dev/tilt/releases/download/v0.23.6/tilt.0.23.6.linux.${ARCH_ALIAS}.tar.gz \
-        && tar -xzf tilt.tar.gz && chmod +x tilt && mv tilt /usr/local/bin/ && ln -s $(which tilt) $TOOLS_PATH/tilt
+        && tar -xzf tilt.tar.gz && chmod +x tilt && mv tilt /usr/local/bin/ && ln -s $(which tilt) $TOOLS_PATH
 
     wget -q -O k9s.tar.gz https://github.com/derailed/k9s/releases/download/v0.24.1/k9s_Linux_${ARCH_ALIAS}.tar.gz \
-        && tar -xzf k9s.tar.gz k9s && chmod +x k9s && mv k9s /usr/local/bin/ && ln -s $(which k9s) $TOOLS_PATH/k9s
+        && tar -xzf k9s.tar.gz k9s && chmod +x k9s && mv k9s /usr/local/bin/ && ln -s $(which k9s) $TOOLS_PATH
 
     wget -q -O krew.tar.gz https://github.com/kubernetes-sigs/krew/releases/download/v0.4.3/krew-linux_${ARCH}.tar.gz \
         && tar -xzf krew.tar.gz && mv krew-linux_${ARCH} krew && chmod +x krew && mv krew /usr/local/bin/ \
-        && ln -s $(which krew) $TOOLS_PATH/krew
+        && ln -s $(which krew) $TOOLS_PATH
 
     # set kubectl auto-completion & other k8s related aliases etc
     echo "
@@ -204,8 +231,12 @@ install_k8s_cluster(){
     # kubectl krew install cost
 
     if [[ $K8S_CLUSTER == 'minikube' ]]; then install_k8s_minikube $K8S_VERSION; fi
-    #if [[ $K8S_CLUSTER == 'k3s' ]]; then install_k8s_k3s $K8S_VERSION; fi
+    if [[ $K8S_CLUSTER == 'k3s' ]]; then install_k8s_k3s $K8S_VERSION; fi
     if [[ $K8S_DEFAULT_APPS == 'yes' ]]; then install_k8s_default_apps; fi
+
+    # some cleanups to save on image size
+    if [[ $K8S_CLUSTER != 'minikube' ]]; then sudo rm -rf $(which minikube); fi
+    sudo rm -rf $(which podman)
 }
 
 install_k8s_minikube(){
@@ -216,31 +247,45 @@ install_k8s_minikube(){
     sudo systemctl start minikube
 
     # TODO: instead of sleeping here check some other way to save time
-    sleep_for=180; printf "Sleeping for ${sleep_for} secs for cluster to boot with all components\n"; sleep ${sleep_for}
+    sleep_for=300; printf "Sleeping for ${sleep_for} secs for cluster to boot with all components\n"; sleep ${sleep_for}
 
     # TODO: ensure minikube cluster is enabled and running
     minikube addons enable metrics-server
     minikube addons enable dashboard
 
-    kubectl wait --for=condition=ready --timeout=90s --all pods
+    kubectl wait --for=condition=ready --timeout=180s --all pods
 
     # TODO: remove these test cmds from here & automate the manual test
     docker images
     kubectl get pods -A
 }
 
+install_k8s_k3s(){
+    K3S_VERSION='' # default is from stable channel, e.g: v1.23.5+k3s1
+    if [[ $1 != '' ]]; then K3S_VERSION="${1}+k3s1"; fi # K8S_VERSION
+
+    # TODO: mount hostpath for node ???
+    sudo curl -sLf https://get.k3s.io | \
+        INSTALL_K3S_VERSION=${K3S_VERSION} K3S_NODE_NAME='k3s' \
+        INSTALL_K3S_EXEC='--disable traefik --disable servicelb --service-node-port-range=80-32767' \
+        sh -s - --docker
+
+    sudo chown -R docker /etc/rancher
+    echo "export KUBECONFIG=/etc/rancher/k3s/k3s.yaml" | sudo tee -a /etc/profile.d/_env.sh
+    source /etc/profile.d/_env.sh
+}
+
 install_k8s_default_apps(){
     # Install ingress(nginx/ambassador/gloo etc), redis, mysql etc using helm charts
     # TODO: add support for nginx, redis, mongo etc @ k8s cluster
+    source /src/apps/app.sh
+    kubectl create namespace dev
+    kubectl create namespace alpha
 
-    # TODO: do this via apps/mysql/Taskfile/deploy instead
-    NAMESPACE=default
-    helm install $NAMESPACE-mysql bitnami/mysql \
-        --set auth.rootPassword=root --set primary.service.type=NodePort --set primary.service.nodePort=3306
-
-    # Misc to support final live image which has mysql, redis etc installed
-    sudo apt -y install mysql-client php-mysql #redis-tools
-    kubectl wait --for=condition=ready --timeout=90s --all pods
+    app mysql deploy
+    app mysql install-tools
+    app redis deploy
+    app redis install-tools
 }
 
 install_gcloud_cli(){
