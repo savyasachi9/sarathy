@@ -1,30 +1,28 @@
 # https://taskfile.dev
 version: '3'
-
 includes:
   edit: ../../taskfile-lib/edit.yaml
 
-dotenv: ['{{.K8S_APPS}}/.env']
-
+dotenv: ['{{.K8S_APPS}}/env.{{.ENV}}']
 tasks:
-    # https://github.com/bitnami/charts/tree/master/bitnami/redis/#installing-the-chart
-    # multi line example (each line should be terminated with semi colon)
+  # https://github.com/bitnami/charts/tree/master/bitnami/redis/#installing-the-chart
+  # TODO: test with name & full name overrides for all k8s objects including pv/pvc
   deploy:
     cmds:
       - >-
         helm install {{.NAMESPACE}}-redis bitnami/{{.APP_NAME}} \
           --set auth.enabled=false --set replica.replicaCount=0 \
-          --set master.service.type=NodePort --set master.service.nodePorts.redis=6379;
-
-        kubectl wait --for=condition=ready --timeout=60s --all pods;
+          --set master.service.type=NodePort --set master.service.nodePorts.redis=6379 \
+          --namespace {{.NAMESPACE}} --wait;
+  delete:
+    cmds:
+      - helm delete {{.NAMESPACE}}-{{.APP_NAME}} --namespace {{.NAMESPACE}} --wait
   install-tools:
     cmds:
       - sudo apt -y install redis-tools
-  delete:
-    cmds:
-      - helm delete {{.NAMESPACE}}-{{.APP_NAME}}
   test:
     cmds:
+      #- echo {{.ENV}} {{.NAMESPACE}}
       - kubectl get pods | grep {{.APP_NAME}}
       # test for redis cli
       - redis-cli -h 0.0.0.0 KEYS blah

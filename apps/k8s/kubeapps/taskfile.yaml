@@ -1,27 +1,27 @@
 # https://taskfile.dev
 version: '3'
+includes:
+  edit: ../../taskfile-lib/edit.yaml
 
+dotenv: ['{{.K8S_APPS}}/env.{{.ENV}}']
 tasks:
   deploy:
     cmds:
-      - >-
-        helm repo add bitnami https://charts.bitnami.com/bitnami && \
-        kubectl create namespace kubeapps && \
-        helm install kubeapps --namespace kubeapps bitnami/kubeapps;
+      - helm repo add bitnami https://charts.bitnami.com/bitnami
+      - kubectl create namespace kubeapps
+      - helm install kubeapps --namespace kubeapps bitnami/kubeapps
 
-        kubectl create --namespace default serviceaccount kubeapps-operator && \
-        kubectl create clusterrolebinding kubeapps-operator --clusterrole=cluster-admin --serviceaccount=default:kubeapps-operator;
+      - kubectl create serviceaccount kubeapps-operator --namespace {{.NAMESPACE}}
+      - kubectl create clusterrolebinding kubeapps-operator --clusterrole=cluster-admin --serviceaccount=default:kubeapps-operator
 
   delete:
     cmds:
-      # TODO: finish
-      - >-
-        kubectl --namespace default delete
+      - kubectl delete namespace kubeapps
+      - kubectl delete serviceaccount kubeapps-operator --namespace {{.NAMESPACE}}
 
   get-secret:
     cmds:
-      - >-
-        kubectl get secret $(kubectl get serviceaccount kubeapps-operator -o jsonpath='{range .secrets[*]}{.name}{"\n"}{end}' | grep kubeapps-operator-token) -o jsonpath='{.data.token}' -o go-template='{{.data.token | base64decode}}' && echo
+      - kubectl get secret $(kubectl get serviceaccount kubeapps-operator -o jsonpath='{range .secrets[*]}{.name}{"\n"}{end}' | grep kubeapps-operator-token) -o jsonpath='{.data.token}' -o go-template='{{.data.token | base64decode}}' && echo
 
   port-forward:
     cmds:

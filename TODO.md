@@ -1,18 +1,33 @@
-### Install below tools & more and part of MVP
-- k3s + k3d, kind, k0s, vmware-tanzu, microk8s ?
-- devspace
-- hugo docs & other docs apps like netifly etc
-- image vulnerability scanner
-- local image registry
+### Sarathy full stack
+- logging (stdout/stderr), loki ...
+- monitoring (using prometheus)
+- stack tracking (jaeger etc)
+- open fass, faas
 
 ### Cleanups & usage improvements, user examples/samples
-- app cmd as alias for task cmd
-- add more apps/... besides mysql with varioud ci/cd techs used as examples etc
-- build sarathy from root dir & copy over self code into image
 - better leverage docker layer cache by splitting _utils.sh into images/scripts/...sh/es i.e multiple files for each toolchain
-- docker compose for running sarathy containers ???
+- add more apps/... besides mysql with varioud ci/cd techs used as examples etc
 - TheAlgorithms as part of examples into latest image
 - Skaffold, tilt etc ci/cd tools examples dir copied into k8s image
+- docs for all/most added tools in sarathy
+- docs for skaffold apps showing helm, kustomize etc
+- ci/cd for apps for diff ENVs (dev/alpha|qa/beta/prod) with apps for each in diff namepaces with complete isolation
+
+### De-coupling
+- de-couple 'lang-tools' from sarathy:latest and have it to be it's own image
+  sarathy:base, sarathy:coder, sarathy:minikube, sarathy:latest
+- have local-registry for sarathy:minikube etc to store images for sarathy:coder and other apps ?
+- have sarathy:coder for PLT be downloaded at runtime via it's systemd service & be stored in local-registry ?
+
+### Install below tools & more and part of MVP
+- k3s + k3d, kind, k0s, vmware-tanzu, microk8s ?
+- hugo docs & other docs apps like mkdocs, mdBook, netifly etc
+- image vulnerability scanner
+- local image registry
+- devspace
+- rust dog : https://github.com/ogham/dog
+- rust LSD
+- https://dokku.com/docs/deployment/application-deployment/
 
 ### Commit running container for end user:
 - sarathy run.sh script like we have for k3s such that all is comprised as part of it
@@ -33,8 +48,17 @@
 - test that minikube image has mysql, krew, helm etc working
 
 ### Next tools to add:
-- lazydocker
-- wtf cli dashboard
+- lsd / ls cmd modern
+- oxide / cd cmd history
+- https://github.com/ogham/exa
+- https://github.com/ajeetdsouza/zoxide
+- rustscan
+- starship
+- bore.pub https://github.com/ekzhang/bore
+  (ngrok ??? https://github.com/localtunnel/localtunnel ???)
+- https://github.com/dokku/dokku
+- lazydocker, ctop
+- wtf cli dashboard / https://github.com/wtfutil/wtf
 - benchmarking tools this & others :
   https://github.com/sharkdp/hyperfine
   https://github.com/wg/wrk
@@ -42,6 +66,8 @@
 - kubecost
 - minikube dashboard inside minikube cluster itself
 - minikube ingress (nginx/ambassador)
+- try 'vcluster' ???
+- headless CMS/es
 
 ### Monaco editor
 - monaco editor with various github algorithms in diff langs & other open source codes
@@ -53,19 +79,28 @@
 - enable support for cross platform desktop GUI for sarathy docker conatiner
 
 ### Misc tools
+- https://github.com/dylanaraps/neofetch/wiki/Installation (colorful sysinfo)
+- https://github.com/charmbracelet/bubbletea
+- https://github.com/charmbracelet/glow
 - https://github.com/nektos/act
-- https://github.com/nvbn/thefuck
 - https://github.com/nocodb/nocodb
 - https://github.com/nextcloud/docker
 - https://education.github.com/toolbox
-- https://github.com/localstack/localstack
+- https://github.com/dokku/dokku (local heroku)
+- https://github.com/localstack/localstack (local aws)
 - https://github.com/sqlmapproject/sqlmap
-- mitm with kubetap
+- mitm with kubetap & other such tools like 'bettercap', ettercap etc
 - https://github.com/docker-mailserver/docker-mailserver
+- https://github.com/meilisearch/meilisearch
+- https://github.com/extrawurst/gitui
+- diff nix shells (fish, nushell etc)
+
+### Security
+- https://github.com/trufflesecurity/trufflehog
 
 ### Misc Items:
 - IMP: disable SWAP ?????? test with disabling swap and if it works then just keep it disabled for best performance of k8s cluster
-- install bash testing framwwork and run bash tests for what all we need to test
+- install bash testing framework and run bash tests for what all we need to test
 - install & test kube-cost plugin
 - Address all open TODOs
 - IMP: look into when minikube cert is gonna expire and for how long is it valid for
@@ -75,7 +110,6 @@
 - IPFS support & croc for sending files over web
 - rust-desk
 - also test sarathy GUI on linux amd64, win amd64 and mac arm64/amd64
-- use Makefile to build ??? or maybe overkill as we just have 1 bash script ??? but we'll need Makefile in general to run tests etc too not just build
 - docs / cheatsheet to use all things sarathy
 - mount ~/.ssh dir option, also mount bash_history file, this is mustttt
 - reduce image size further
@@ -91,3 +125,20 @@
 - Support for package VERSIONs based on conf file for x86/arm64 etc
 - support toolchain in other flavors too (arch, redhat, alpine etc)
 - see if sarathy can run just fine on containerd , podman etc i.e other container engines than just docker
+
+
+### TODO:
+- coder image decoupling and tabular info for the image with languages tools etc below it
+  mount /src and /home dirs into coder container , make sure nothing in coder's /home is getting overridden
+  or should we mount to /root/ ??? hmm maybe just create a user
+  maybe we don't need to mount anything except /src/user as everything else for examples etc should be there
+  later we'll have more examples too
+  idea is to share the IDE between both containers for using examples from both
+  both the cintainers can be used independently especially the coder cont
+  k8s cont can be used alone or with coder cont running in it
+  sooo figure out how to mount the code from sarathy:k8s -> sarathy:coder
+  examples/coder or examples/programming is the only dir which is for 'coder cont', only this dir goes into its image
+  rest all dirs get mounted from sarathy:minikube -> sarathy:coder
+
+
+- tools & utils in tabular form too

@@ -1,4 +1,5 @@
 .samsara
 .vagrant
 x*
+images/vscode
 images/vscode/extensions-*

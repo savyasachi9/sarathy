@@ -1,18 +1,14 @@
 #!/usr/bin/env bash
-###
+
 # This func is a wrapper for 'task' cmd to make things simpler for the end user like
 # task -t FILE_PATH/taskfile.yaml cmd -> app name cmd
 # eg: app mysql test
-###
 app(){
   APPS_HOME=/src/apps
-  if [[ -d '/src/user/apps' ]]; then
-    APPS_HOME=/src/user/apps
-  fi
-
   APP_NAME=$1
   APP_CMD=$2
-  if [ -z ${EDITOR+x} ]; then EDITOR=code-server; fi
+  if [[ -z ${ENV+x} ]]; then ENV='dev'; fi
+  if [[ -z ${EDITOR+x} ]]; then EDITOR=code-server; fi
   if [[ $APP_NAME == '' ]]; then echo "ERR: app taskfile name not given, exiting ..."; return 1; fi
 
   # let's find app file
@@ -29,5 +25,6 @@ app(){
   APP_NAME=$APP_NAME APP_DIR=$APP_DIR \
   K8S_APPS=$K8S_APPS \
   EDITOR=$EDITOR \
+  ENV=$ENV \
     task -t $APP_TASKFILE "${@:2}"
 }

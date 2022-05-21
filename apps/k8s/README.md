@@ -4,7 +4,7 @@ app mysql deploy
 app mysql test
 app mysql delete
 
-# Mysql gets deployed as a NodePort Service so you can access it from sarathy like this
+# from sarathy
 # mysql -h 0.0.0.0 -u root -p root
 ```
 
@@ -14,6 +14,6 @@ app redis deploy
 app redis test
 app redis delete
 
-# Redis gets deployed as a NodePort Service so you can access it from sarathy like this
+# from sarathy
 # redis-cli -h 0.0.0.0
 ```

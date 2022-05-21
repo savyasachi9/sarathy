@@ -38,8 +38,10 @@ install_build_tools(){
 }
 
 install_benchmarking_tools(){
+    TOOLS_PATH=/usr/local/bin/tools/benchmarking && sudo mkdir -p $TOOLS_PATH
+    # TODO: move this to rust section & symlink here
     wget -q -O hyperfine.deb https://github.com/sharkdp/hyperfine/releases/download/v1.13.0/hyperfine_1.13.0_${ARCH}.deb \
-        && sudo dpkg -i hyperfine.deb
+        && sudo dpkg -i hyperfine.deb && ln -s $(which hyperfine) $TOOLS_PATH
 }
 
 install_misc_tools(){
@@ -50,7 +52,7 @@ install_misc_tools(){
 install_candcpp(){
     # $1 VERSION         (default GNU gdb 9.2)
     # $2 CODE_SERVER_EXT (default no)
-    sudo apt -y update && DEBIAN_FRONTEND=noninteractive sudo apt -y -qq install \
+    sudo apt -y update && sudo DEBIAN_FRONTEND=noninteractive apt -y -qq install \
     build-essential gdb libncurses5-dev libncursesw5-dev
 
     if [[ $2 == 'yes' ]]; then code-server --install-extension /tmp/vscode/*.vsix; fi
@@ -61,10 +63,10 @@ install_php(){
     # $2 CODE_SERVER_EXT (default no)
     VER=${1:-'8.1'}
 
-    sudo apt install -y -qq software-properties-common && \
+    sudo DEBIAN_FRONTEND=noninteractive apt install -y -qq software-properties-common && \
     sudo add-apt-repository -y ppa:ondrej/php && \
-    DEBIAN_FRONTEND=noninteractive sudo apt -y update && \
-    DEBIAN_FRONTEND=noninteractive sudo apt -y -qq install php${VER} php${VER}-fpm && \
+    sudo apt -y update && \
+    sudo apt -y -qq install php${VER} php${VER}-fpm && \
     sudo update-alternatives --set php /usr/bin/php${VER}; \
     systemctl disable apache2
 
@@ -85,6 +87,8 @@ install_python(){
 install_python_tools(){
     sudo pip3 install thefuck
     echo 'eval $(thefuck --alias)' | sudo tee -a /etc/profile.d/_env.sh
+
+    # TODO: sylmink this in it's own path
 }
 
 install_golang(){
@@ -119,12 +123,16 @@ install_rust_tools(){
     TOOLS_PATH=/usr/local/bin/tools/rust && sudo mkdir -p $TOOLS_PATH
 
     sudo apt install -y -qq -o Dpkg::Options::="--force-overwrite" \
-    bat ripgrep  fd-find
+    bat ripgrep fd-find nmap
+
+    wget -q -O rustscan.deb https://github.com/RustScan/RustScan/releases/download/2.0.1/rustscan_2.0.1_amd64.deb && \
+        sudo dpkg -i rustscan.deb
 
     # Alot of tools still use cat, grep, find etc cmds so let's not replace them yet...
     ln -s $(which batcat) $TOOLS_PATH/bat && \
     ln -s $(which rg) $TOOLS_PATH/rgrep && \
     ln -s $(which fdfind) $TOOLS_PATH/fd && \
+    ln -s $(which rustscan) $TOOLS_PATH/netscan && \
     ln -s $(which hyperfine) $TOOLS_PATH
 }
 
@@ -223,8 +231,12 @@ install_k8s_cluster(){
     # kubectl krew install cost
 
     if [[ $K8S_CLUSTER == 'minikube' ]]; then install_k8s_minikube $K8S_VERSION; fi
-    #if [[ $K8S_CLUSTER == 'k3s' ]]; then install_k8s_k3s $K8S_VERSION; fi
+    if [[ $K8S_CLUSTER == 'k3s' ]]; then install_k8s_k3s $K8S_VERSION; fi
     if [[ $K8S_DEFAULT_APPS == 'yes' ]]; then install_k8s_default_apps; fi
+
+    # some cleanups to save on image size
+    if [[ $K8S_CLUSTER != 'minikube' ]]; then sudo rm -rf $(which minikube); fi
+    sudo rm -rf $(which podman)
 }
 
 install_k8s_minikube(){
@@ -235,22 +247,41 @@ install_k8s_minikube(){
     sudo systemctl start minikube
 
     # TODO: instead of sleeping here check some other way to save time
-    sleep_for=180; printf "Sleeping for ${sleep_for} secs for cluster to boot with all components\n"; sleep ${sleep_for}
+    sleep_for=300; printf "Sleeping for ${sleep_for} secs for cluster to boot with all components\n"; sleep ${sleep_for}
 
     # TODO: ensure minikube cluster is enabled and running
     minikube addons enable metrics-server
     minikube addons enable dashboard
 
-    kubectl wait --for=condition=ready --timeout=90s --all pods
+    kubectl wait --for=condition=ready --timeout=180s --all pods
 
     # TODO: remove these test cmds from here & automate the manual test
     docker images
     kubectl get pods -A
 }
 
+install_k8s_k3s(){
+    K3S_VERSION='' # default is from stable channel, e.g: v1.23.5+k3s1
+    if [[ $1 != '' ]]; then K3S_VERSION="${1}+k3s1"; fi # K8S_VERSION
+
+    # TODO: mount hostpath for node ???
+    sudo curl -sLf https://get.k3s.io | \
+        INSTALL_K3S_VERSION=${K3S_VERSION} K3S_NODE_NAME='k3s' \
+        INSTALL_K3S_EXEC='--disable traefik --disable servicelb --service-node-port-range=80-32767' \
+        sh -s - --docker
+
+    sudo chown -R docker /etc/rancher
+    echo "export KUBECONFIG=/etc/rancher/k3s/k3s.yaml" | sudo tee -a /etc/profile.d/_env.sh
+    source /etc/profile.d/_env.sh
+}
+
 install_k8s_default_apps(){
     # Install ingress(nginx/ambassador/gloo etc), redis, mysql etc using helm charts
     # TODO: add support for nginx, redis, mongo etc @ k8s cluster
+    source /src/apps/app.sh
+    kubectl create namespace dev
+    kubectl create namespace alpha
+
     app mysql deploy
     app mysql install-tools
     app redis deploy

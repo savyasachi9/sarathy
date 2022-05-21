@@ -1,31 +1,29 @@
 # https://taskfile.dev
 version: '3'
-
 includes:
   edit: ../../taskfile-lib/edit.yaml
 
-dotenv: ['{{.K8S_APPS}}/.env']
-
+dotenv: ['{{.K8S_APPS}}/env.{{.ENV}}']
 tasks:
   deploy:
+    # TODO: test with name & full name overrides for all k8s objects including pv/pvc
+    # TODO: give chart reference
+    # TODO: explain why are we installing with NAMESPACE prefix, i.e of pv,pvc names collide otherwise when deploying across diff NSes
     cmds:
       - >-
         helm install {{.NAMESPACE}}-{{.APP_NAME}} bitnami/mysql \
-          --set auth.rootPassword=root --set primary.service.type=NodePort --set primary.service.nodePort=3306;
-
-      - kubectl wait --for=condition=ready --timeout=60s --all pods;
+          --set auth.rootPassword=root \
+          --set primary.service.type=NodePort --set primary.service.nodePort=3306 \
+          --namespace {{.NAMESPACE}} --wait;
   delete:
     cmds:
-      - helm delete {{.NAMESPACE}}-{{.APP_NAME}}
-
+      - helm delete {{.NAMESPACE}}-{{.APP_NAME}} --namespace {{.NAMESPACE}} --wait
   install-tools:
     cmds:
       - sudo apt -y install mysql-client
-
   test:
     cmds:
       - kubectl get pods -n {{.NAMESPACE}} | grep {{.APP_NAME}}
       # from sarathy container
-      - mysql -h sarathy -u root -proot -e 'show databases;'
+      - mysql -h 0.0.0.0 -u root -proot -e 'show databases;'
       # from sarathy container's k8s cluster
-      - echo "{{.ENV}}"
