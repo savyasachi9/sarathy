@@ -77,10 +77,10 @@ docker exec -it --user docker sarathy /bin/bash -c "docker exec -it -h langtools
 - build-tools
   * [task](https://taskfile.dev) (yaml based build tool / task runner)
 - containers
-  * containerd
-  * docker
-  * podman
-  * ctop
+  * docker (docker in docker / dind)
+  * [containerd](https://containerd.io/)
+  * [podman](https://podman.io/)
+  * [ctop](https://ctop.sh/)
 - kubernetes/k8s
   * [kubectl](https://kubernetes.io/docs/reference/kubectl/) (k8s control tool)
   * [krew](https://krew.sigs.k8s.io/) (kubectl package manager)

@@ -1,4 +1,4 @@
-### Use 'app' cmd to deploy/delete/test apps @ k8s cluster using 'app' cmd using ['Taskfile'](https://taskfile.dev/) under the hood
+### Use 'app' cmd to deploy/delete/test apps @ k8s cluster using 'app' cmd using ['task'](https://taskfile.dev/) cmd under the hood
 ```bash
 # mysql
 # 'sarathy' container : mysql -h 0.0.0.0 -u root -p root
