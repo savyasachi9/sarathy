@@ -20,14 +20,14 @@
 - have sarathy:coder for PLT be downloaded at runtime via it's systemd service & be stored in local-registry ?
 
 ### Install below tools & more and part of MVP
-- k3s + k3d, kind, k0s, vmware-tanzu, microk8s ?
+- k3s + k3d, kind, k0s (other cluster to consider for later talos k8s linux, vmware-tanzu, microk8s ?)
 - hugo docs & other docs apps like mkdocs, mdBook, netifly etc
 - image vulnerability scanner
 - local image registry
 - devspace
 - rust dog : https://github.com/ogham/dog
 - rust LSD
-- https://dokku.com/docs/deployment/application-deployment/
+- python diagrams : https://github.com/mingrammer/diagrams
 
 ### Commit running container for end user:
 - sarathy run.sh script like we have for k3s such that all is comprised as part of it
@@ -48,8 +48,10 @@
 - test that minikube image has mysql, krew, helm etc working
 
 ### Next tools to add:
+- https://github.com/charmbracelet/gum
 - lsd / ls cmd modern
 - oxide / cd cmd history
+- df/du modern alternative duf : https://github.com/muesli/duf
 - https://github.com/ogham/exa
 - https://github.com/ajeetdsouza/zoxide
 - rustscan
@@ -94,9 +96,13 @@
 - https://github.com/meilisearch/meilisearch
 - https://github.com/extrawurst/gitui
 - diff nix shells (fish, nushell etc)
+- https://github.com/kevwan/tproxy
+- https://github.com/pocketbase/pocketbase
+- https://dokku.com/docs/deployment/application-deployment
 
 ### Security
 - https://github.com/trufflesecurity/trufflehog
+- https://github.com/wazuh/wazuh
 
 ### Misc Items:
 - IMP: disable SWAP ?????? test with disabling swap and if it works then just keep it disabled for best performance of k8s cluster
@@ -108,6 +114,7 @@
 - Test & use docker volumes for end user instructions for /var/lib/docker such that their docker images can be preserved
 - Instructions for end user to extend sarathy & build their own base/live images
 - IPFS support & croc for sending files over web
+- Spacedrive : https://github.com/spacedriveapp/spacedrive
 - rust-desk
 - also test sarathy GUI on linux amd64, win amd64 and mac arm64/amd64
 - docs / cheatsheet to use all things sarathy
@@ -142,3 +149,6 @@
 
 
 - tools & utils in tabular form too
+
+### TODOs for lang-tools docker image:
+- support for 'go live reload' https://github.com/cosmtrek/air

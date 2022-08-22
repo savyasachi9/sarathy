@@ -2,7 +2,7 @@
 Description=php html server
 
 [Service]
-ExecStart=/usr/bin/bash -c 'pushd /src/examples/html/ && php -S 0.0.0.0:9092'
+ExecStart=/usr/bin/bash -c 'pushd /src/examples/html/ && php -S 0.0.0.0:9095'
 User=docker
 
 [Install]

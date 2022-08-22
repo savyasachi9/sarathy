@@ -7,6 +7,7 @@ After=docker.service
 # ExecStop=/usr/local/bin/minikube stop
 [Service]
 Type=simple
+ExecStartPre=sudo /usr/bin/ln -fs /var/run/cri-docker.sock /var/run/cri-dockerd.sock
 ExecStart=/usr/local/bin/minikube \
     start --driver=none \
     --kubernetes-version= \

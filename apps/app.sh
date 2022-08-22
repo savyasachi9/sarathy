@@ -4,7 +4,7 @@
 # task -t FILE_PATH/taskfile.yaml cmd -> app name cmd
 # eg: app mysql test
 app(){
-  APPS_HOME=/src/apps
+  APPS_HOME=${APPS_HOME:-'/src/apps'}
   APP_NAME=$1
   APP_CMD=$2
   if [[ -z ${ENV+x} ]]; then ENV='dev'; fi
@@ -26,5 +26,6 @@ app(){
   K8S_APPS=$K8S_APPS \
   EDITOR=$EDITOR \
   ENV=$ENV \
+  ARCH=$ARCH \
     task -t $APP_TASKFILE "${@:2}"
 }
