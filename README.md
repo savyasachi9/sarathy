@@ -15,7 +15,7 @@
               |
     +---------------------+ -> docker, k8s clusters [minikube/k3s]
     |  sarathy container  | -> CNCF & other modern cli tools
-    +---------------------+ -> Web TTY @ port 9091
+    +---------------------+ -> Web TTY @ port 9090
               ^
               |
     +------------------------+
@@ -50,7 +50,7 @@ docker exec -it --user docker sarathy /bin/bash -c 'mysql -h sarathy -u root -pr
 
 > all the tools in container image are installed for user 'docker'
 
-> minikube/k3s images come pre-installed with mysql8.0 and redis6.2
+> minikube/k3s images come pre-installed with mysql8.0 and redis6.2 using help charts
 
 ### Programming Languages container
 - c/c++, gcc 9, gdb

@@ -69,10 +69,9 @@ RUN chown -R $USER:$USER $HOME /scripts && \
     echo "export ARCH_ALIAS=${ARCH_ALIAS}" >> /etc/profile.d/_env.sh && \
     cat /etc/profile.d/k8s.sh >> /etc/profile.d/_env.sh && \
     echo "source /scripts/install.sh" >> /etc/profile.d/_env.sh && \
-    echo "source /src/apps/app.sh" >> /etc/profile.d/_env.sh && \
-    # TODO: make sure we have 1 res & not > 1 via 'fd' cmd
-    echo "SARATHY_HOME=/src/sarathy; if [[ /src/sarathy != '' ]]; then export APPS_HOME=/src/sarathy/apps; fi" \
-    >> /etc/profile.d/_env.sh && \
+    echo 'SARATHY_HOME=""; if [[ -d /src/apps ]]; then SARATHY_HOME=/src; \
+        elif [[ -d /src/sarathy ]]; then SARATHY_HOME=/src/sarathy; fi; \
+        source $SARATHY_HOME/apps/app.sh' >> /etc/profile.d/_env.sh && \
     echo "alias tools='tree /usr/local/bin/tools'" >> /etc/profile.d/_env.sh && \
     echo "source /etc/profile.d/_env.sh" >> $HOME/.bashrc
 
