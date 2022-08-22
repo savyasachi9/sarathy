@@ -6,36 +6,44 @@
 
 "one with a chariot"
 
+### arch
+```bash
+    +---------------------+ -> c/c++, go, python, php ...
+    | langtools container | -> Web IDE @ port 9091
+    +---------------------+ -> Web TTY @ port 9092
+              ^
+              |
+    +---------------------+ -> docker, k8s clusters [minikube/k3s]
+    |  sarathy container  | -> CNCF & other modern cli tools
+    +---------------------+ -> Web TTY @ port 9091
+              ^
+              |
+    +------------------------+
+    | host OS running docker |
+    +------------------------+
+```
+
 ### Usage
 ```bash
 # Run minikube in docker
 docker run -it --rm --privileged \
-    -p 9090-9093:9090-9093 \
-    -h sarathy --name sarathy \
-    -v ${PWD}:/src/user \
-    savyasachi9/sarathy:minikube-amd64
+    -p 9090-9092:9090-9092 -h sarathy --name sarathy \
+    -v ${PWD}:/src/user savyasachi9/sarathy:minikube-amd64
 
 # Run k3s in docker
 docker run -it --rm --privileged \
-    -p 9090-9093:9090-9093 \
-    -h sarathy --name sarathy \
-    -v ${PWD}:/src/user \
-    savyasachi9/sarathy:k3s-amd64
+    -p 9090-9092:9090-9092 -h sarathy --name sarathy \
+    -v ${PWD}:/src/user savyasachi9/sarathy:k3s-amd64
 
 # Or just run docker in docker
 docker run -it --rm --privileged \
-    -p 9090-9093:9090-9093 \
-    -h sarathy --name sarathy \
-    -v ${PWD}:/src/user \
-    savyasachi9/sarathy:latest-amd64
+    -p 9090-9092:9090-9092 -h sarathy --name sarathy \
+    -v ${PWD}:/src/user savyasachi9/sarathy:latest-amd64
 
 # Visit webtty/gotty with bash in browser (not available for arm64 yet)
 http://localhost:9090
 
-# Visit code-server/vscode IDE in browser
-http://localhost:9091/?folder=/src/
-
-# Connect to container
+# Connect to sarathy container
 docker exec -it --user docker sarathy bash
 
 # Or connect to container via ssh (login creds : docker / d)
@@ -50,14 +58,23 @@ docker exec -it --user docker sarathy /bin/bash -c 'mysql -h sarathy -u root -pr
 
 > minikube/k3s images come pre-installed with mysql8.0 and redis6.2
 
-### Programming Languages
+### Programming Languages container
 - c/c++, gcc 9, gdb
 - golang1.17, dlv
 - php8.1, xdebug
 - python3.8, pip3
 
-> above languages are pre-installed with debug extensions, use key 'F5' to run debugger in IDE
+```bash
+# Visit code-server/vscode IDE in browser
+http://localhost:9091/?folder=/src/
 
+# Visit webtty/gotty with bash in browser (not available for arm64 yet)
+http://localhost:9092
+
+# Connect to langtools container thru sarathy
+docker exec -it --user docker sarathy /bin/bash -c "docker exec -it -h langtools langtools bash"
+```
+> above languages are pre-installed with debug extensions, use key 'F5' to run debugger in IDE
 
 ### Tools & Utils
 # list of available tools & utils

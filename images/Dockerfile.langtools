@@ -1,0 +1,84 @@
+# syntax = docker/dockerfile:1.3-labs
+# above syntax declaration is needed for heredoc support in Dockerfile
+FROM ubuntu:latest as sarathy-langtools
+ARG ARCH
+ARG ARCH_ALIAS
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt -y update && apt -y upgrade && \
+    DEBIAN_FRONTEND=noninteractive apt install -y -qq \
+    sudo vim nano \
+    htop wget curl telnet iputils-ping jq tree unzip git screen \
+    nmap
+
+###################################
+# Programming Language/s, IDE etc :
+# vscode in browser (code-server)
+WORKDIR /tmp
+RUN mkdir -p /tmp/vscode /scripts /src/.vscode /src/examples /src/user
+
+#COPY ./images/systemd.services/* /etc/systemd/system/
+COPY ./images/_utils.sh /scripts/utils.sh
+COPY ./images/scripts/lang-tools.sh /scripts/lang-tools.sh
+COPY ./images/_test.sh /scripts/test.sh
+COPY ./images/vscode/extensions-${ARCH} /tmp/vscode
+COPY ./images/vscode/.vscode /src/.vscode
+COPY ./examples /src/examples
+RUN chmod +x /scripts/*.sh
+
+### Web tools (accessible over http etc):
+RUN /bin/bash -c 'source /scripts/utils.sh; install_web_ides; install_web_tools; install_misc_tools;'
+
+ENV PATH="/usr/local/go/bin:${PATH}"
+RUN /bin/bash -c 'source /scripts/lang-tools.sh; install_candcpp NA yes' && \
+    /bin/bash -c 'source /scripts/lang-tools.sh; install_php 8.1 yes' && \
+    /bin/bash -c 'source /scripts/lang-tools.sh; install_python 3.8 yes' && \
+    /bin/bash -c 'source /scripts/lang-tools.sh; install_golang 1.18beta2 yes' && go clean --cache
+
+RUN touch /etc/profile.d/_env.sh && \
+    sed -i '/export PATH/d' /etc/profile.d/_env.sh && \
+    echo "export PATH=${PATH}" >> /etc/profile.d/_env.sh && \
+    echo "export TERM=xterm-256color" >> /etc/profile.d/_env.sh && \
+    echo "source /etc/profile.d/_env.sh" >> $HOME/.bashrc && \
+    rm -rf /tmp/* && \
+    apt clean && apt autoclean && apt autoremove && apt autoremove --purge -y
+
+RUN mkdir -p /scripts
+RUN cat <<EOF >> /scripts/init.sh && chmod +x /scripts/init.sh
+#!/usr/bin/env bash
+# NOTE: gotty is not available for arm64 yet so webtty service will fail to start there
+/usr/local/bin/gotty -a 0.0.0.0 -p 9092 -w bash &
+
+/usr/bin/code-server --auth none --disable-telemetry --disable-update-check --bind-addr 0.0.0.0:9091;
+
+trap : TERM INT; sleep infinity & wait
+EOF
+
+WORKDIR /src
+ENTRYPOINT ["/bin/bash", "/scripts/init.sh"]
+
+# TODO: sarathy:langtools container systemd service, setup and enable
+# TODO: sarathy:latest (w/o amd64/arm64 using buildx), same for sarathy:langtools, i.e use buildx
+
+### -1)
+# IMAGE_REPOSITORY=savyasachi9
+# ARCH=arm64
+# ARCH_ALIAS=${ARCH}
+# VERSION=v0.1.0
+# LANGTOOLS_CONTAINER_IMAGE_TAG=${IMAGE_REPOSITORY}/sarathy:langtools-${ARCH}-${VERSION}
+# LANGTOOLS_CONTAINER_IMAGE_TAG_ALIAS=${IMAGE_REPOSITORY}/sarathy:langtools-${ARCH}
+# LANGTOOLS_CONTAINER_NAME=sarathy-lang-tools-${ARCH}
+
+# ### build ARM
+# docker build --squash -f images/Dockerfile.langtools --platform linux/${ARCH} \
+#     --build-arg VERSION=${VERSION} --build-arg ARCH=${ARCH} --build-arg ARCH_ALIAS=${ARCH_ALIAS} \
+#     -t ${LANGTOOLS_CONTAINER_IMAGE_TAG} -t ${LANGTOOLS_CONTAINER_IMAGE_TAG_ALIAS} .
+
+# ### build amd
+# docker build --squash -f images/Dockerfile.langtools --platform linux/amd64 \
+#     --build-arg VERSION=0.1.0 --build-arg ARCH=amd64 --build-arg ARCH_ALIAS=x86_64 \
+#     -t savyasachi9/sarathy:langtools-amd64 -t savyasachi9/sarathy:langtools-amd64-v0.1.0 .
+
+# docker buildx build --platform linux/amd64,linux/arm64 -f images/Dockerfile.langtools --build-arg ARCH=amd64 --build-arg ARCH_ALIAS=x86_64 -t savyasachi9/sarathy:langtools-amd64 -t savyasachi9/sarathy:langtools-amd64-v0.1.0 .
+
+# docker run -it --rm --privileged --network=host -h sarathy --name langtools -v ${PWD}:/src savyasachi9/langtools:amd64
+# docker exec -it --user dev langtools bash

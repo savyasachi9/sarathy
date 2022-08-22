@@ -1,0 +1,18 @@
+# https://taskfile.dev
+version: '3'
+tasks:
+  build:
+    cmds:
+      - 'skaffold build --filename $FILENAME ..... TODO: add more FLAGS'
+
+  run:
+    cmds:
+      - "skaffold run --filename $FILENAME ... TODO: add more flags"
+
+  deploy:
+    cmds:
+      - "TODO: ..."
+
+  delete:
+    cmds:
+      - 'TODO: ...'

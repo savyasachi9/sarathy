@@ -1,0 +1,21 @@
+[Unit]
+Description=plt
+After=docker.service
+Requires=docker.service
+
+# TODO: arm64 should be from ENV var
+[Service]
+TimeoutStartSec=0
+Restart=always
+ExecStartPre=/usr/bin/docker pull savyasachi9/langtools:arm64
+ExecStart=/usr/bin/docker \
+    run -it --rm -d --privileged --network=host \
+    -h sarathy --name langtools -v /src:/src savyasachi9/langtools:arm64
+
+# ExecStop=/usr/bin/docker kill langtools
+
+User=docker
+Group=docker
+
+[Install]
+WantedBy=multi-user.target

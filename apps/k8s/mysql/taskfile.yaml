@@ -6,14 +6,14 @@ includes:
 dotenv: ['{{.K8S_APPS}}/env.{{.ENV}}']
 tasks:
   deploy:
+    # https://github.com/bitnami/charts/tree/master/bitnami/mysql/
     # TODO: test with name & full name overrides for all k8s objects including pv/pvc
-    # TODO: give chart reference
     # TODO: explain why are we installing with NAMESPACE prefix, i.e of pv,pvc names collide otherwise when deploying across diff NSes
     cmds:
       - >-
         helm install {{.NAMESPACE}}-{{.APP_NAME}} bitnami/mysql \
           --set auth.rootPassword=root \
-          --set primary.service.type=NodePort --set primary.service.nodePort=3306 \
+          --set primary.service.type=NodePort --set primary.service.nodePorts.mysql=3306 \
           --namespace {{.NAMESPACE}} --wait;
   delete:
     cmds:

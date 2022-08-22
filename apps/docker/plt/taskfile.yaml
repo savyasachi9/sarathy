@@ -1,0 +1,25 @@
+# https://taskfile.dev
+version: '3'
+includes:
+  edit: ../../taskfile-lib/edit.yaml
+
+tasks:
+  run:
+    cmds:
+      - >-
+        docker \
+          run -it --rm -d --privileged --network=host \
+          -h sarathy --name langtools -v /src:/src savyasachi9/langtools:${ARCH}
+
+  stop:
+    cmds:
+      - docker stop lang-tools
+
+  kill:
+    cmds:
+      - docker kill lang-tools
+
+  test:
+    cmds:
+      - docker images | grep langtools
+      - docker ps | grep langtools
