@@ -26,19 +26,13 @@
 ### Usage
 ```bash
 # Run minikube in docker
-docker run -it --rm --privileged \
-    -p 9090-9092:9090-9092 -h sarathy --name sarathy \
-    -v ${PWD}:/src/user savyasachi9/sarathy:minikube-amd64
+docker run -it --rm --privileged -p 9090-9092:9090-9092 -h sarathy --name sarathy -v ${PWD}:/src/user savyasachi9/sarathy:minikube-amd64
 
 # Run k3s in docker
-docker run -it --rm --privileged \
-    -p 9090-9092:9090-9092 -h sarathy --name sarathy \
-    -v ${PWD}:/src/user savyasachi9/sarathy:k3s-amd64
+docker run -it --rm --privileged -p 9090-9092:9090-9092 -h sarathy --name sarathy -v ${PWD}:/src/user savyasachi9/sarathy:k3s-amd64
 
 # Or just run docker in docker
-docker run -it --rm --privileged \
-    -p 9090-9092:9090-9092 -h sarathy --name sarathy \
-    -v ${PWD}:/src/user savyasachi9/sarathy:latest-amd64
+docker run -it --rm --privileged -p 9090-9092:9090-9092 -h sarathy --name sarathy -v ${PWD}:/src/user savyasachi9/sarathy:latest-amd64
 
 # Visit webtty/gotty with bash in browser (not available for arm64 yet)
 http://localhost:9090
@@ -65,6 +59,9 @@ docker exec -it --user docker sarathy /bin/bash -c 'mysql -h sarathy -u root -pr
 - python3.8, pip3
 
 ```bash
+# You can either run 'sarathy' container to use 'langtools' container or run it like
+docker run -it --rm --privileged -p 9091-9092:9091-9092 -h sarathy --name langtools -v ${PWD}:/src savyasachi9/langtools:amd64
+
 # Visit code-server/vscode IDE in browser
 http://localhost:9091/?folder=/src/
 
@@ -77,7 +74,6 @@ docker exec -it --user docker sarathy /bin/bash -c "docker exec -it -h langtools
 > above languages are pre-installed with debug extensions, use key 'F5' to run debugger in IDE
 
 ### Tools & Utils
-# list of available tools & utils
 - build-tools
   * [task](https://taskfile.dev) (yaml based build tool / task runner)
 - containers
