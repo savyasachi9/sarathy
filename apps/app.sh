@@ -4,7 +4,8 @@
 # task -t FILE_PATH/taskfile.yaml cmd -> app name cmd
 # eg: app mysql test
 app(){
-  APPS_HOME=${APPS_HOME:-'/src/apps'}
+  SARATHY_HOME=${SARATHY_HOME:-'/src'}
+  APPS_HOME=${APPS_HOME:-"${SARATHY_HOME}/apps"}
   APP_NAME=$1
   APP_CMD=$2
   if [[ -z ${ENV+x} ]]; then ENV='dev'; fi

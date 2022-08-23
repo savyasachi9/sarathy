@@ -15,7 +15,7 @@
               |
     +---------------------+ -> docker, k8s clusters [minikube/k3s]
     |  sarathy container  | -> CNCF & other modern cli tools
-    +---------------------+ -> Web TTY @ port 9091
+    +---------------------+ -> Web TTY @ port 9090
               ^
               |
     +------------------------+
@@ -26,19 +26,13 @@
 ### Usage
 ```bash
 # Run minikube in docker
-docker run -it --rm --privileged \
-    -p 9090-9092:9090-9092 -h sarathy --name sarathy \
-    -v ${PWD}:/src/user savyasachi9/sarathy:minikube-amd64
+docker run -it --rm --privileged -p 9090-9092:9090-9092 -h sarathy --name sarathy -v ${PWD}:/src/user savyasachi9/sarathy:minikube-amd64
 
 # Run k3s in docker
-docker run -it --rm --privileged \
-    -p 9090-9092:9090-9092 -h sarathy --name sarathy \
-    -v ${PWD}:/src/user savyasachi9/sarathy:k3s-amd64
+docker run -it --rm --privileged -p 9090-9092:9090-9092 -h sarathy --name sarathy -v ${PWD}:/src/user savyasachi9/sarathy:k3s-amd64
 
 # Or just run docker in docker
-docker run -it --rm --privileged \
-    -p 9090-9092:9090-9092 -h sarathy --name sarathy \
-    -v ${PWD}:/src/user savyasachi9/sarathy:latest-amd64
+docker run -it --rm --privileged -p 9090-9092:9090-9092 -h sarathy --name sarathy -v ${PWD}:/src/user savyasachi9/sarathy:latest-amd64
 
 # Visit webtty/gotty with bash in browser (not available for arm64 yet)
 http://localhost:9090
@@ -56,7 +50,7 @@ docker exec -it --user docker sarathy /bin/bash -c 'mysql -h sarathy -u root -pr
 
 > all the tools in container image are installed for user 'docker'
 
-> minikube/k3s images come pre-installed with mysql8.0 and redis6.2
+> minikube/k3s images come pre-installed with mysql8.0 and redis6.2 using help charts
 
 ### Programming Languages container
 - c/c++, gcc 9, gdb
@@ -65,6 +59,9 @@ docker exec -it --user docker sarathy /bin/bash -c 'mysql -h sarathy -u root -pr
 - python3.8, pip3
 
 ```bash
+# You can either run 'sarathy' container to use 'langtools' container or run it like
+docker run -it --rm --privileged -p 9091-9092:9091-9092 -h sarathy --name langtools -v ${PWD}:/src savyasachi9/langtools:amd64
+
 # Visit code-server/vscode IDE in browser
 http://localhost:9091/?folder=/src/
 
@@ -77,14 +74,13 @@ docker exec -it --user docker sarathy /bin/bash -c "docker exec -it -h langtools
 > above languages are pre-installed with debug extensions, use key 'F5' to run debugger in IDE
 
 ### Tools & Utils
-# list of available tools & utils
 - build-tools
   * [task](https://taskfile.dev) (yaml based build tool / task runner)
 - containers
-  * containerd
-  * docker
-  * podman
-  * ctop
+  * docker (docker in docker / dind)
+  * [containerd](https://containerd.io/)
+  * [podman](https://podman.io/)
+  * [ctop](https://ctop.sh/)
 - kubernetes/k8s
   * [kubectl](https://kubernetes.io/docs/reference/kubectl/) (k8s control tool)
   * [krew](https://krew.sigs.k8s.io/) (kubectl package manager)

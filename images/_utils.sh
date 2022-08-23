@@ -26,6 +26,9 @@ install_web_ides(){
     # TODO: move go.toolsManagement to install_go section
     echo '{
     "go.toolsManagement.autoUpdate": false,
+    "gopls": {
+        "experimentalWorkspaceModule": true,
+    },
     "workbench.colorTheme": "Default Dark+",
     "telemetry.telemetryLevel": "off"
 }' | tee $VSCODE_SETTINGS_DIR/settings.json
