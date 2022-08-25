@@ -8,19 +8,19 @@
 
 ### arch
 ```bash
-    +---------------------+ -> c/c++, go, python, php ...
-    | langtools container | -> Web IDE @ port 9091
-    +---------------------+ -> Web TTY @ port 9092
-              ^
-              |
-    +---------------------+ -> docker, k8s clusters [minikube/k3s]
-    |  sarathy container  | -> CNCF & other modern cli tools
-    +---------------------+ -> Web TTY @ port 9090
-              ^
-              |
-    +------------------------+
-    | host OS running docker |
-    +------------------------+
+    +----------------------------+ -> c/c++, go, python, php ...
+    | lang-tools container (dev) | -> Web IDE @ port 9091
+    +----------------------------+ -> Web TTY @ port 9092
+                  ^
+                  |
+    +----------------------------+ -> docker, k8s clusters [minikube/k3s]
+    | sarathy container (devops) | -> CNCF & other modern cli tools
+    +----------------------------+ -> Web TTY @ port 9090
+                  ^
+                  |
+      +------------------------+
+      | host OS running docker |
+      +------------------------+
 ```
 
 ### Usage
