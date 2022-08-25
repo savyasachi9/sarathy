@@ -1,9 +1,9 @@
 # syntax = docker/dockerfile:1.3-labs
 # above syntax declaration is needed for heredoc support in Dockerfile
 # https://github.com/kubernetes/minikube/blob/master/deploy/kicbase/Dockerfile
-# NOTE: 'sarathy-base' image is for other devs to extend their things upon which itself extends from below
-############### sarathy-base ###############
-FROM gcr.io/k8s-minikube/kicbase:v0.0.29 as sarathy-base
+# NOTE: 'sarathy-latest' image is for other devs to extend their things upon which itself extends from below
+############### sarathy-latest ###############
+FROM gcr.io/k8s-minikube/kicbase:v0.0.29 as sarathy-latest
 ARG DEBIAN_FRONTEND=noninteractive
 ARG ARCH
 ARG ARCH_ALIAS
@@ -79,10 +79,6 @@ RUN chown -R $USER:$USER $HOME /scripts && \
 RUN rm -rf /usr/local/sbin/unminimize /usr/bin/man /etc/update-motd.d/60-unminimize; \
     rm -rf /tmp/* ~/.ssh/* ~/.docker/*; \
     apt clean && apt autoclean && apt autoremove && apt autoremove --purge -y
-
-WORKDIR /src
-###################################
-FROM sarathy-base as sarathy-latest
 
 WORKDIR /src
 EXPOSE 9090-9099

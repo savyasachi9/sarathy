@@ -24,11 +24,11 @@ install_web_ides(){
     && dpkg -i code-server.deb && ln -s $(which code-server) $TOOLS_PATH
 
     # TODO: move go.toolsManagement to install_go section
+    # "gopls": {
+    #     "experimentalWorkspaceModule": true,
+    # },
     echo '{
     "go.toolsManagement.autoUpdate": false,
-    "gopls": {
-        "experimentalWorkspaceModule": true,
-    },
     "workbench.colorTheme": "Default Dark+",
     "telemetry.telemetryLevel": "off"
 }' | tee $VSCODE_SETTINGS_DIR/settings.json

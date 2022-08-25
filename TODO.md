@@ -48,6 +48,7 @@
 - test that minikube image has mysql, krew, helm etc working
 
 ### Next tools to add:
+- https://github.com/chubin/cheat.sh
 - https://github.com/charmbracelet/gum
 - lsd / ls cmd modern
 - oxide / cd cmd history
@@ -103,6 +104,7 @@
 ### Security
 - https://github.com/trufflesecurity/trufflehog
 - https://github.com/wazuh/wazuh
+- https://github.com/kubescape/kubescape
 
 ### Misc Items:
 - IMP: disable SWAP ?????? test with disabling swap and if it works then just keep it disabled for best performance of k8s cluster
@@ -131,24 +133,31 @@
 - build toolchain w/o using gcr.io/k8s-minikube/kicbase
 - Support for package VERSIONs based on conf file for x86/arm64 etc
 - support toolchain in other flavors too (arch, redhat, alpine etc)
-- see if sarathy can run just fine on containerd , podman etc i.e other container engines than just docker
-
+- see if sarathy can run just fine on containerd, podman etc i.e other container engines than just docker
 
 ### TODO:
 - coder image decoupling and tabular info for the image with languages tools etc below it
-  mount /src and /home dirs into coder container , make sure nothing in coder's /home is getting overridden
+- mount /src and /home dirs into coder container , make sure nothing in coder's /home is getting overridden
   or should we mount to /root/ ??? hmm maybe just create a user
-  maybe we don't need to mount anything except /src/user as everything else for examples etc should be there
+- maybe we don't need to mount anything except /src/user as everything else for examples etc should be there
   later we'll have more examples too
   idea is to share the IDE between both containers for using examples from both
-  both the cintainers can be used independently especially the coder cont
-  k8s cont can be used alone or with coder cont running in it
+  both the containers can be used independently especially the coder cont
+  k8s container can be used alone or with langtools container running in it
   sooo figure out how to mount the code from sarathy:k8s -> sarathy:coder
   examples/coder or examples/programming is the only dir which is for 'coder cont', only this dir goes into its image
   rest all dirs get mounted from sarathy:minikube -> sarathy:coder
-
 
 - tools & utils in tabular form too
 
 ### TODOs for lang-tools docker image:
 - support for 'go live reload' https://github.com/cosmtrek/air
+
+### Phishing tools
+https://github.com/htr-tech/nexphisher
+
+### Expose localhost to www
+- NGROK (https://ngrok.com)
+- SERVEO (https://serveo.net)
+- LOCALHOSTRUN (https://localhost.run)
+- LOCALXPOSE (https://localxpose.io/)
