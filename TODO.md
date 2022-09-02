@@ -71,6 +71,7 @@
 - minikube ingress (nginx/ambassador)
 - try 'vcluster' ???
 - headless CMS/es
+- cloud SDKs/CDKs (awscdk, cdktf/terraform)
 
 ### Monaco editor
 - monaco editor with various github algorithms in diff langs & other open source codes
@@ -82,6 +83,7 @@
 - enable support for cross platform desktop GUI for sarathy docker conatiner
 
 ### Misc tools
+- https://github.com/runsidekick/sidekick
 - https://github.com/dylanaraps/neofetch/wiki/Installation (colorful sysinfo)
 - https://github.com/charmbracelet/bubbletea
 - https://github.com/charmbracelet/glow

@@ -112,6 +112,34 @@ docker exec -it --user docker sarathy /bin/bash -c "docker exec -it -h langtools
 - Lower the entry bar for to get started with building cli/container/web applications.
 - 10+ users by EOY 2022, 100+ by EOY 2023, 1000+ by EOY 2024 ...
 
+### Roadmap : Q1/Q2 2022 / finish MVP with stable version
+- build toolchain with cutting edge tools as Dockerimage which has capability to run k8s clusters within a container
+- support diff programming languages with code-server IDE to build apps
+- publish @ github & dockerhub
+
+### Roadmap : Q3/Q4
+- add examples/tutorials on how can one use sarathy to build cli/containers/k8s/web apps
+- add examples for diff ci/cd tools (skaffold, tilt, devspace, helm, docker, simple app cmds) using Taskfile
+- improve upon toolchain & finish open TODOs
+- demos, feedback, improvise & get more users !
+- publish sarathy.dev
+
+### Roadmap : Q1 2023 & beyond
+- TBD
+
+### Security : The good, bad & ugly to look out for
+- Never commit ssh keys & other aws, azure, gcloud keys as part of the docker image (wipe things out from the live image of such sort if there's any).
+- Scan Sarathy images for vulnerabilities and keep them to minimal.
+- Make sure all the open source tools being added in Sarathy's toolchain are properly vetted/examined.
+- For all the open source tools we are using, disable telementary or any other kind of tracking to collect user data/stats etc.
+- Use wireguard etc to keep an eye on Sarathy's network activity to ensure no tools are tracking
+
+### Publish, Market, Onboard & Support Users
+- to friends and devs for feedback
+- at places where folks are looking for getting up & running with k8s locally
+- in various online/offline forums wherever people are in need for such a toolchain or can benefit from it
+- setup discord channel or something similar to support users issues
+
 ### Thank-yous, Credits & References
 - Many thanks to all the folks whose open source tools/tutorials are stitched together for building this toolchain.
 - Much appreciate the folks who are helping build 'sarathy' with their valuable feedback & immense contributions.

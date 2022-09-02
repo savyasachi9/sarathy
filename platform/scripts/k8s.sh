@@ -1,76 +1,5 @@
 #!/usr/bin/env bash
 
-install_web_tools(){
-    TOOLS_PATH=/usr/local/bin/tools/web && sudo mkdir -p $TOOLS_PATH
-
-    if [[ $ARCH == 'amd64' ]]; then \
-        # speedtest (TODO: see if this is available for arm64)
-        curl -s https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | sudo bash && \
-        sudo apt install -y speedtest && ln -s $(which speedtest) $TOOLS_PATH
-
-        # gotty/webtty
-        wget -O gotty.tar.gz https://github.com/yudai/gotty/releases/download/v1.0.1/gotty_linux_amd64.tar.gz \
-        && tar -xzf gotty.tar.gz && chmod +x gotty && mv gotty /usr/local/bin && ln -s $(which gotty) $TOOLS_PATH
-    fi
-}
-
-install_web_ides(){
-    # code-server/vscode in browser
-    VSCODE_EXT_DIR=$HOME/.local/share/code-server/extensions
-    VSCODE_SETTINGS_DIR=$HOME/.local/share/code-server/User
-    mkdir -p $VSCODE_EXT_DIR $VSCODE_SETTINGS_DIR
-
-    wget -q -O code-server.deb https://github.com/coder/code-server/releases/download/v4.2.0/code-server_4.2.0_${ARCH}.deb \
-    && dpkg -i code-server.deb && ln -s $(which code-server) $TOOLS_PATH
-
-    # TODO: move go.toolsManagement to install_go section
-    # "gopls": {
-    #     "experimentalWorkspaceModule": true,
-    # },
-    echo '{
-    "go.toolsManagement.autoUpdate": false,
-    "workbench.colorTheme": "Default Dark+",
-    "telemetry.telemetryLevel": "off"
-}' | tee $VSCODE_SETTINGS_DIR/settings.json
-}
-
-install_build_tools(){
-    TOOLS_PATH=/usr/local/bin/tools/build-tools && sudo mkdir -p $TOOLS_PATH
-    wget -q -O task.deb https://github.com/go-task/task/releases/download/v3.12.0/task_linux_${ARCH}.deb && \
-        dpkg -i task.deb && \
-        sudo ln -s $(which task) $TOOLS_PATH && \
-        sudo ln -s $(which make) $TOOLS_PATH
-}
-
-install_benchmarking_tools(){
-    TOOLS_PATH=/usr/local/bin/tools/benchmarking && sudo mkdir -p $TOOLS_PATH
-    # TODO: move this to rust section & symlink here
-    wget -q -O hyperfine.deb https://github.com/sharkdp/hyperfine/releases/download/v1.13.0/hyperfine_1.13.0_${ARCH}.deb \
-        && sudo dpkg -i hyperfine.deb && ln -s $(which hyperfine) $TOOLS_PATH
-}
-
-install_misc_tools(){
-    TOOLS_PATH=/usr/local/bin/tools/misc && sudo mkdir -p $TOOLS_PATH
-    sudo apt -y install tldr && tldr ls && ln -s $(which tldr) $TOOLS_PATH
-}
-
-install_container_tools(){
-    # TODO : add docker & other container related tools, like image vulnerability scanner, dive etc
-    # nerdctl(for containerd), buildah if not already there
-
-    TOOLS_PATH=/usr/local/bin/tools/container
-    mkdir -p $TOOLS_PATH \
-    && ln -s /usr/bin/docker $TOOLS_PATH \
-    && ln -s /usr/bin/podman $TOOLS_PATH \
-    && ln -s /usr/bin/containerd $TOOLS_PATH
-
-    wget -q -O ctop https://github.com/bcicen/ctop/releases/download/v0.7.7/ctop-0.7.7-linux-${ARCH} \
-        && chmod +x ctop && sudo mv ./ctop /usr/local/bin && ln -s $(which ctop) $TOOLS_PATH
-
-    wget -q -O lazydocker.tar.gz https://github.com/jesseduffield/lazydocker/releases/download/v0.12/lazydocker_0.12_Linux_${ARCH_ALIAS}.tar.gz \
-        && tar -xzf lazydocker.tar.gz && sudo mv ./lazydocker /usr/local/bin && ln -s $(which lazydocker) $TOOLS_PATH
-}
-
 install_k8s_tools(){
     TOOLS_PATH=/usr/local/bin/tools/k8s
     mkdir -p $TOOLS_PATH
@@ -192,21 +121,4 @@ install_k8s_default_apps(){
     app mysql install-tools
     app redis deploy
     app redis install-tools
-}
-
-install_gcloud_cli(){
-    sudo apt-get -y install apt-transport-https ca-certificates gnupg && \
-    echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | \
-    sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
-    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | \
-    sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - && \
-    sudo apt-get -y update && sudo apt-get -y install google-cloud-cli
-}
-
-install_aws_cli(){
-    sudo apt install -y awscli
-}
-
-install_azure_cli(){
-    curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 }
