@@ -3,6 +3,7 @@
 FROM ubuntu:latest as sarathy-langtools
 ARG ARCH
 ARG ARCH_ALIAS
+ARG BUILD_CONTEXT
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt -y update && apt -y upgrade && \
     DEBIAN_FRONTEND=noninteractive apt install -y -qq \
@@ -16,17 +17,16 @@ RUN apt -y update && apt -y upgrade && \
 WORKDIR /tmp
 RUN mkdir -p /tmp/vscode /scripts /src/.vscode /src/examples /src/user
 
-#COPY ./images/systemd.services/* /etc/systemd/system/
-COPY ./images/_utils.sh /scripts/utils.sh
-COPY ./images/scripts/lang-tools.sh /scripts/lang-tools.sh
-COPY ./images/_test.sh /scripts/test.sh
-COPY ./images/vscode/extensions-${ARCH} /tmp/vscode
-COPY ./images/vscode/.vscode /src/.vscode
+COPY ./${BUILD_CONTEXT}/scripts/misc.sh /scripts/misc.sh
+COPY ./${BUILD_CONTEXT}/scripts/lang-tools.sh /scripts/lang-tools.sh
+COPY ./${BUILD_CONTEXT}/scripts/test.sh /scripts/test.sh
+COPY ./${BUILD_CONTEXT}/vscode/extensions-${ARCH} /tmp/vscode
+COPY ./${BUILD_CONTEXT}/vscode/.vscode /src/.vscode
 COPY ./examples /src/examples
 RUN chmod +x /scripts/*.sh
 
 ### Web tools (accessible over http etc):
-RUN /bin/bash -c 'source /scripts/utils.sh; install_web_ides; install_web_tools; install_misc_tools;'
+RUN /bin/bash -c 'source /scripts/misc.sh; install_web_ides; install_web_tools; install_misc_tools;'
 
 ENV PATH="/usr/local/go/bin:${PATH}"
 RUN /bin/bash -c 'source /scripts/lang-tools.sh; install_candcpp NA yes' && \

@@ -1,21 +1,21 @@
 #!/usr/bin/env bash
 # TODO: if docker buildx with --push works, then no need to use latest image with ARCH in the TAG
-# latest             -> sarathy:latest-ARCH-VERSION / sarathy:latest-amd64-v0.1.0 | sarathy:latest-arm64-v0.1.0
-#                    -> sarathy:latest-ARCH  / sarathy:latest-amd64 | sarathy:latest-arm64
+# latest              -> sarathy:latest-ARCH-VERSION / sarathy:latest-amd64-v0.1.0 | sarathy:latest-arm64-v0.1.0
+#                     -> sarathy:latest-ARCH  / sarathy:latest-amd64 | sarathy:latest-arm64
 #
-# live k8s images    -> sarathy:K8S_CLUSTER-K8S_VERSION-ARCH-VERSION / sarathy:minikube-amd64-v0.1.0 | sarathy:minikube-arm64-v0.1.0
-# mkube/k3s, redis   -> sarathy:K8S_CLUSTER-K8S_VERSION-ARCH         / sarathy:minikube-amd64 | sarathy:minikube-amd64
+# live k8s images     -> sarathy:K8S_CLUSTER-K8S_VERSION-ARCH-VERSION / sarathy:minikube-amd64-v0.1.0 | sarathy:minikube-arm64-v0.1.0
+# minikube/k3s, redis -> sarathy:K8S_CLUSTER-K8S_VERSION-ARCH         / sarathy:minikube-amd64 | sarathy:minikube-amd64
 # mysql, PLT etc
 # sarathy:latest-amd64 -> sarathy:minikube-amd64 | sarathy:k3s-amd64
 #
 # usage: (amd64/arm64 for ARG $1)
-# ./images/build.sh amd64
-# ./images/build.sh amd64 skip-live
-# ./images/build.sh amd64 push
-# ./images/build.sh amd64 just-push
-# K8S_CLUSTER=minikube ./images/build.sh amd64
-# K8S_CLUSTER=k3s ./images/build.sh amd64
-# BUILD_PLT=yes BUILD_LATEST=no ./images/build.sh amd64
+# ./platform/build.sh amd64
+# ./platform/build.sh amd64 skip-live
+# ./platform/build.sh amd64 push
+# ./platform/build.sh amd64 just-push
+# K8S_CLUSTER=minikube ./platform/build.sh amd64
+# K8S_CLUSTER=k3s ./platform/build.sh amd64
+# BUILD_PLT=yes BUILD_LATEST=no ./platform/build.sh amd64
 set -e
 DIR=$(dirname $0)
 VERSION=v0.2.0
@@ -30,8 +30,8 @@ BUILD_PLT=${BUILD_PLT:-'no'}
 BUILD_LATEST=${BUILD_LATEST:-'yes'}
 BUILD_LIVE=${BUILD_LIVE:-'yes'}
 
-PUSH_IMAGES='no'
-JUST_PUSH_IMAGES='no'
+PUSH_IMAGES='no'      # TODO: use --push here
+JUST_PUSH_IMAGES='no' # TODO: use --just-push here
 if  [[ $2 == 'push' ]]; then PUSH_IMAGES='yes'; fi
 if  [[ $2 == 'just-push' ]]; then JUST_PUSH_IMAGES='yes'; fi
 
@@ -91,8 +91,8 @@ mkdir -p ${DIR}/vscode/extensions-${ARCH} ${DIR}/vscode/.vscode
 ### TODO: build this using buildx for multi arch such that we don't need todo langtools-arch image tags
 if [[ $BUILD_PLT == 'yes' ]]; then
   printf "Building PLT\n"
-  docker build --squash -f images/Dockerfile.langtools --platform linux/${ARCH} \
-      --build-arg ARCH=${ARCH} --build-arg ARCH_ALIAS=${ARCH_ALIAS} \
+  docker build --squash -f ${DIR}/Dockerfile.langtools --platform linux/${ARCH} \
+      --build-arg BUILD_CONTEXT=${DIR} --build-arg ARCH=${ARCH} --build-arg ARCH_ALIAS=${ARCH_ALIAS} \
       -t ${LANGTOOLS_CONTAINER_IMAGE_TAG} -t ${LANGTOOLS_CONTAINER_IMAGE_TAG_ALIAS} .
 
   printf "Pushing PLT ...\n"
@@ -103,7 +103,7 @@ fi
 ### 1) build latest image for asked arch
 if [[ $BUILD_LATEST == 'yes' ]]; then
   docker build --squash -f ${DIR}/Dockerfile --platform linux/${ARCH} --target sarathy-latest \
-    --build-arg ARCH=${ARCH} --build-arg ARCH_ALIAS=${ARCH_ALIAS} \
+    --build-arg BUILD_CONTEXT=${DIR} --build-arg ARCH=${ARCH} --build-arg ARCH_ALIAS=${ARCH_ALIAS} \
     -t ${LATEST_CONTAINER_IMAGE_TAG} -t ${LATEST_CONTAINER_IMAGE_TAG_ALIAS} .
 fi
 
@@ -128,7 +128,7 @@ docker exec -it --user docker ${LATEST_CONTAINER_NAME} /bin/bash -c \
 # install tools in running container
 printf "Installing k8s cluster (${K8S_CLUSTER}) with tools & default apps in latest container\n"
 docker exec -it --user docker ${LATEST_CONTAINER_NAME} /bin/bash -c \
-  "source /scripts/install.sh && install_k8s_cluster ${K8S_CLUSTER} '${K8S_VERSION}' yes" || true
+  "source /scripts/k8s.sh && install_k8s_cluster ${K8S_CLUSTER} '${K8S_VERSION}' yes" || true
 
 ### 3) export final container with k8s cluster running with apps deployed
 printf "Saving running container as final k8s cluster image\n"
