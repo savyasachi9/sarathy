@@ -1,5 +1,3 @@
-#!/usr/bin/env bash 
-
 install_candcpp(){
     # $1 VERSION         (default GNU gdb 9.2)
     # $2 CODE_SERVER_EXT (default no)
@@ -106,3 +104,4 @@ install_java(){
 
 # install_scratch(){
 # }
+

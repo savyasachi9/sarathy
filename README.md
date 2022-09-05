@@ -1,7 +1,7 @@
 # Sarathy
 - general purpose toolchain to build cli, web & container apps using docker & k8s
-- minikube in docker
-- k3s in docker
+- low-code, no-code
+- minikube in docker, k3s in docker
 - various modern CLI & CNCF tools
 
 "one with a chariot"
@@ -50,7 +50,7 @@ docker exec -it --user docker sarathy /bin/bash -c 'mysql -h sarathy -u root -pr
 
 > all the tools in container image are installed for user 'docker'
 
-> minikube/k3s images come pre-installed with mysql8.0 and redis6.2 using help charts
+> minikube/k3s images come pre-installed with mysql8.0 and redis6.2 using helm charts
 
 ### Programming Languages container
 - c/c++, gcc 9, gdb

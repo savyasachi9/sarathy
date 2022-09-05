@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 install_k8s_tools(){
     TOOLS_PATH=/usr/local/bin/tools/k8s
     mkdir -p $TOOLS_PATH
@@ -113,7 +111,7 @@ install_k8s_k3s(){
 install_k8s_default_apps(){
     # Install ingress(nginx/ambassador/gloo etc), redis, mysql etc using helm charts
     # TODO: add support for nginx, redis, mongo etc @ k8s cluster
-    source /src/apps/app.sh
+    source ${APPS_PATH}/app.sh
     kubectl create namespace dev
     kubectl create namespace alpha
 

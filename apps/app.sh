@@ -1,10 +1,8 @@
-#!/usr/bin/env bash
-
 # This func is a wrapper for 'task' cmd to make things simpler for the end user like
 # task -t FILE_PATH/taskfile.yaml cmd -> app name cmd
 # eg: app mysql test
 app(){
-  SARATHY_HOME=${SARATHY_HOME:-'/src'}
+  #SARATHY_HOME=${SARATHY_HOME:-'/sarathy'}
   APPS_HOME=${APPS_HOME:-"${SARATHY_HOME}/apps"}
   APP_NAME=$1
   APP_CMD=$2
