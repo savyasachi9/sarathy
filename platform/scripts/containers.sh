@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 install_container_tools(){
     # TODO : add docker & other container related tools, like image vulnerability scanner, dive etc
     # nerdctl(for containerd), buildah if not already there
@@ -16,3 +14,4 @@ install_container_tools(){
     wget -q -O lazydocker.tar.gz https://github.com/jesseduffield/lazydocker/releases/download/v0.12/lazydocker_0.12_Linux_${ARCH_ALIAS}.tar.gz \
         && tar -xzf lazydocker.tar.gz && sudo mv ./lazydocker /usr/local/bin && ln -s $(which lazydocker) $TOOLS_PATH
 }
+

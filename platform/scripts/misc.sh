@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 install_web_tools(){
     TOOLS_PATH=/usr/local/bin/tools/web && sudo mkdir -p $TOOLS_PATH
 

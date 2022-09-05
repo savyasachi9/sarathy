@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 install_gcloud_cli(){
     sudo apt-get -y install apt-transport-https ca-certificates gnupg && \
     echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | \
@@ -16,3 +14,4 @@ install_aws_cli(){
 install_azure_cli(){
     curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 }
+
