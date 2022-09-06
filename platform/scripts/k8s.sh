@@ -85,10 +85,6 @@ install_k8s_minikube(){
     minikube addons enable dashboard
 
     kubectl wait --for=condition=ready --timeout=300s --all pods
-
-    # TODO: remove these test cmds from here & automate the manual test
-    docker images
-    kubectl get pods -A
 }
 
 install_k8s_k3s(){

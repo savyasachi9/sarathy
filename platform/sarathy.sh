@@ -3,6 +3,7 @@
 # tested on linux/mac m1, need to test on windows                       #
 # issues:                                                               #
 # - k3s failed on thinkpad x1carbon 6 kubuntu                           #
+# - ./platform/sarathy.sh minikube ssh (hangs)                          #
 #########################################################################
 RED="\e[31m" GREEN="\e[32m" YELLOW="\e[33m" CYAN="\e[36m" ENDCLR="\e[0m"
 info()    { echo -e "${CYAN}${1}${ENDCLR}";}
@@ -11,19 +12,19 @@ yellow()  { echo -e "${YELLOW}${1}${ENDCLR}";}
 warn()    { echo -e "${YELLOW}${1}${ENDCLR}";}
 err()     { echo -e "${RED}${1}${ENDCLR}";}
 
-# cat ./platform/run.sh | bash -s -- minikube
-# TODO: curl github URL & install using that eg
 usage() {
   echo -e "${CYAN}Usage:${ENDCLR}
 $ ./platform.sh <image type flavor> <action type>
 * param1 latest|minikube|k3s|plt
-* param2 build|run|stop|kill|exec|ssh|extend
+* param2 build|run|stop|kill|exec|extend
 
 # ${CYAN}Use with cat${ENDCLR}
-cat ./platform/sarathy.sh | bash -s -- run k3s
+cat ./platform/sarathy.sh | bash -s -- minikube run
 
 # ${CYAN}Use with curl${ENDCLR}
-# ${RED}TODO: add url for curl github sarathy.sh and run|extend it etc for end users${ENDCLR}
+curl -sfL https://savyasachi9.github.io/sarathy/platform/sarathy.sh | bash -s -- k3s run
+
+# ${RED}TODO: how to extend it etc for end users${ENDCLR}
 
 # ${CYAN}Use with FLAGS for each cmd, e.g:${ENDCLR}
 # ./platform/sarathy.sh build minikube --arch=amd64|arm64 --plt
@@ -35,17 +36,11 @@ cat ./platform/sarathy.sh | bash -s -- run k3s
 ################
 # Set Defaults #
 ################
-SARATHY_FLAVORS=('minikube' 'k3s') # minikube, k3s, kind, k0s, microk8s
+SARATHY_FLAVORS=('minikube' 'k3s' 'latest' 'plt') # minikube, k3s, kind, k0s, microk8s
 ARCH=amd64 # TODO: more ways to deduce if on arm to foolproof
 if [[ $(uname -m) == 'arm64' ]]; then ARCH=arm64; fi
 FLAVOR=$1
 ACTION=$2
-
-# The image user wants to use for run|exec|ssh
-# TODO: use better var names for IMAGE, CNT_NAME, PORTS ...
-IMAGE=savyasachi9/sarathy:${FLAVOR}-${ARCH}
-CNT_NAME=sarathy-${FLAVOR}
-PORTS='-p 9090-9092:9090-9092'
 
 #################
 # Validate ARGs #
@@ -56,10 +51,17 @@ if [[ ! " ${SARATHY_FLAVORS[*]} " =~ " ${FLAVOR} " ]]; then
     exit 1
 fi
 
-#################
-# Set Overrides #
-#################
+################################
+# Set Overrides & Deduced Vars #
+################################
+# The image user wants to use for run|exec|ssh
+# TODO: use better var names for IMAGE, CNT_NAME, PORTS ...
+IMAGE=savyasachi9/sarathy:${FLAVOR}-${ARCH}
+CNT_NAME=sarathy-${FLAVOR}
+PORTS='-p 9090-9092:9090-9092'
 if [[ "$@" == *"nopo"* ]]; then PORTS=''; fi
+# TODO: take out this hack by using plt everywhere instead of langtools & plt !!!
+if [[ $FLAVOR == 'plt' ]]; then IMAGE=savyasachi9/langtools:${ARCH}; fi
 
 # Run sarathy if not already running
 run(){
@@ -107,7 +109,14 @@ run(){
 
 stop(){ info "Stopping ${CNT_NAME} ..."; docker kill $CNT_NAME;}
 kill(){ info "Nuking ${CNT_NAME} ..."; docker kill $CNT_NAME;}
-exec(){ docker exec -it --user docker $CNT_NAME /bin/bash;}
+exec(){
+    local _exec="docker exec -it --user docker $CNT_NAME /bin/bash"
+    $_exec
+    if [[ $? -gt 0 ]]; then
+        err "Unable to exec into container, use below cmd ..."
+        warn "$_exec"
+    fi
+}
 
 ssh(){
     ssh docker@$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $CNT_NAME)

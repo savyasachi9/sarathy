@@ -54,6 +54,7 @@ if [[ ! " ${K8S_CLUSTERS_SUPPORTED[*]} " =~ " ${K8S_CLUSTER} " ]]; then
 fi
 
 IMAGE_REPOSITORY=savyasachi9
+RAND=$RANDOM
 LANGTOOLS_CONTAINER_IMAGE_TAG=${IMAGE_REPOSITORY}/langtools:${ARCH}-${VERSION}
 LANGTOOLS_CONTAINER_IMAGE_TAG_ALIAS=${IMAGE_REPOSITORY}/langtools:${ARCH}
 LANGTOOLS_CONTAINER_NAME=sarathy-lang-tools-${ARCH}
@@ -128,9 +129,9 @@ docker exec -it --user docker ${LATEST_CONTAINER_NAME} /bin/bash -c \
 # install tools in running container
 printf "Installing k8s cluster (${K8S_CLUSTER}) with tools & default apps in latest container\n"
 docker exec -it --user docker ${LATEST_CONTAINER_NAME} /bin/bash -c \
-  "source /scripts/k8s.sh && install_k8s_cluster ${K8S_CLUSTER} '${K8S_VERSION}' yes" || true
+  "source /sarathy/scripts/k8s.sh && install_k8s_cluster ${K8S_CLUSTER} '${K8S_VERSION}' yes" || true
 
-### 3) export final container with k8s cluster running with apps deployed
+### 3) Export final container with k8s cluster running with apps deployed
 printf "Saving running container as final k8s cluster image\n"
 docker commit ${LATEST_CONTAINER_NAME} ${FINAL_CONTAINER_IMAGE_TAG}
 docker tag ${FINAL_CONTAINER_IMAGE_TAG} ${FINAL_CONTAINER_IMAGE_TAG_ALIAS}
