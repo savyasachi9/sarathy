@@ -14,12 +14,11 @@
 - ci/cd for apps for diff ENVs (dev/alpha|qa/beta/prod) with apps for each in diff namepaces with complete isolation
 
 ### De-coupling
-- de-couple 'lang-tools' from sarathy:latest and have it to be it's own image
-  sarathy:base, sarathy:coder, sarathy:minikube, sarathy:latest
 - have local-registry for sarathy:minikube etc to store images for sarathy:coder and other apps ?
 - have sarathy:coder for PLT be downloaded at runtime via it's systemd service & be stored in local-registry ?
 
 ### Install below tools & more and part of MVP
+- Support multiple ingress's(gloo/nginx/ambassador/kong etc)
 - k3s + k3d, kind, k0s (other cluster to consider for later talos k8s linux, vmware-tanzu, microk8s ?)
 - hugo docs & other docs apps like mkdocs, mdBook, netifly etc
 - image vulnerability scanner
