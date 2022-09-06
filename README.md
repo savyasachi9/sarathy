@@ -25,28 +25,21 @@
 
 ### Usage
 ```bash
+# TODO: update usage with curl call from github master tree etc
+
 # Run minikube in docker
-docker run -it --rm --privileged -p 9090-9092:9090-9092 -h sarathy --name sarathy -v ${PWD}:/src/user savyasachi9/sarathy:minikube-amd64
+curl -sfL https://savyasachi9.github.io/sarathy/platform/sarathy.sh | bash -s -- minikube run
 
 # Run k3s in docker
-docker run -it --rm --privileged -p 9090-9092:9090-9092 -h sarathy --name sarathy -v ${PWD}:/src/user savyasachi9/sarathy:k3s-amd64
+curl -sfL https://savyasachi9.github.io/sarathy/platform/sarathy.sh | bash -s -- k3s run
 
 # Or just run docker in docker
-docker run -it --rm --privileged -p 9090-9092:9090-9092 -h sarathy --name sarathy -v ${PWD}:/src/user savyasachi9/sarathy:latest-amd64
+curl -sfL https://savyasachi9.github.io/sarathy/platform/sarathy.sh | bash -s -- latest run
 
 # Visit webtty/gotty with bash in browser (not available for arm64 yet)
 http://localhost:9090
-
-# Connect to sarathy container
-docker exec -it --user docker sarathy bash
-
-# Or connect to container via ssh (login creds : docker / d)
-ssh docker@$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' sarathy)
-
-# Connect to mysql running in sarathy containers k8s cluster from host OS (if using minikube image)
-docker exec -it --user docker sarathy /bin/bash -c 'mysql -h sarathy -u root -proot'
 ```
-> use image 'savyasachi9/sarathy:latest-arm64' for arm64 arch (apple m1, raspberry pi etc)
+> support for amd64 & arm64 (apple m1, raspberry pi etc)
 
 > all the tools in container image are installed for user 'docker'
 
@@ -59,8 +52,8 @@ docker exec -it --user docker sarathy /bin/bash -c 'mysql -h sarathy -u root -pr
 - python3.8, pip3
 
 ```bash
-# You can either run 'sarathy' container to use 'langtools' container or run it like
-docker run -it --rm --privileged -p 9091-9092:9091-9092 -h sarathy --name langtools -v ${PWD}:/src savyasachi9/langtools:amd64
+# You can either run 'sarathy' container to use 'langtools/plt' container or run it like
+curl -sfL https://savyasachi9.github.io/sarathy/platform/sarathy.sh | bash -s -- plt run
 
 # Visit code-server/vscode IDE in browser
 http://localhost:9091/?folder=/src/
@@ -68,8 +61,11 @@ http://localhost:9091/?folder=/src/
 # Visit webtty/gotty with bash in browser (not available for arm64 yet)
 http://localhost:9092
 
-# Connect to langtools container thru sarathy
-docker exec -it --user docker sarathy /bin/bash -c "docker exec -it -h langtools langtools bash"
+# Connect to langtools/plt container
+docker exec -it sarathy-plt /bin/bash
+
+# Connect to langtools container thru sarathy-minikube container
+docker exec -it --user docker sarathy-minikube /bin/bash -c "docker exec -it -h langtools langtools bash"
 ```
 > above languages are pre-installed with debug extensions, use key 'F5' to run debugger in IDE
 
@@ -109,7 +105,8 @@ docker exec -it --user docker sarathy /bin/bash -c "docker exec -it -h langtools
 ### Project Goals
 - Help one stay upto date with modern tooling to solve problems & keep experimenting forever.
 - Bridge the ever growing gap between enterpeise & academia where academia is behind what's used in enterprise.
-- Lower the entry bar for to get started with building cli/container/web applications.
+- Lower the entry bar for to get started with building cli/web/container applications.
+- Create a bridge between DEV & DEVOPS along with DEV teams such that they all speak the same language for apps & infra.
 - 10+ users by EOY 2022, 100+ by EOY 2023, 1000+ by EOY 2024 ...
 
 ### Roadmap : Q1/Q2 2022 / finish MVP with stable version
