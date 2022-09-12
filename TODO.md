@@ -1,9 +1,3 @@
-### Sarathy full stack
-- logging (stdout/stderr), loki ...
-- monitoring (using prometheus)
-- stack tracking (jaeger etc)
-- open fass, faas
-
 ### Cleanups & usage improvements, user examples/samples
 - better leverage docker layer cache by splitting _utils.sh into images/scripts/...sh/es i.e multiple files for each toolchain
 - add more apps/... besides mysql with varioud ci/cd techs used as examples etc
@@ -21,7 +15,11 @@
 - Support multiple ingress's(gloo/nginx/ambassador/kong etc)
 - k3s + k3d, kind, k0s (other cluster to consider for later talos k8s linux, vmware-tanzu, microk8s ?)
 - hugo docs & other docs apps like mkdocs, mdBook, netifly etc
-- image vulnerability scanner
+- logging (stdout/stderr), loki ...
+- telemetry metrics, monitoring, alerting (using prometheus)
+- stack tracking (jaeger etc)
+- open fass, faas
+- image vulnerability scanners, https://github.com/snyk/cli etc
 - local image registry
 - devspace
 - rust dog : https://github.com/ogham/dog

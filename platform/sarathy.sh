@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 #########################################################################
 # This script is for building|running|extending 'Sarathy' platform      #
 # tested on linux/mac m1, need to test on windows                       #
@@ -22,7 +23,7 @@ $ ./platform.sh <image type flavor> <action type>
 cat ./platform/sarathy.sh | bash -s -- minikube run
 
 # ${CYAN}Use with curl${ENDCLR}
-curl -sfL https://savyasachi9.github.io/sarathy/platform/sarathy.sh | bash -s -- k3s run
+curl -sfL https://savyasachi9.github.io/sarathy/platform/sarathy.sh | bash -s -- minikube run
 
 # ${RED}TODO: how to extend it etc for end users${ENDCLR}
 
@@ -33,9 +34,14 @@ curl -sfL https://savyasachi9.github.io/sarathy/platform/sarathy.sh | bash -s --
   "
 }
 
-################
-# Set Defaults #
-################
+####################################
+# TODO: add check for if docker    #
+# exists on host OS (win/mac/*nix) #
+####################################
+
+############################
+# Set Default ENV Vars ... #
+############################
 SARATHY_FLAVORS=('minikube' 'k3s' 'latest' 'plt') # minikube, k3s, kind, k0s, microk8s
 ARCH=amd64 # TODO: more ways to deduce if on arm to foolproof
 if [[ $(uname -m) == 'arm64' ]]; then ARCH=arm64; fi
@@ -58,7 +64,7 @@ fi
 # TODO: use better var names for IMAGE, CNT_NAME, PORTS ...
 IMAGE=savyasachi9/sarathy:${FLAVOR}-${ARCH}
 CNT_NAME=sarathy-${FLAVOR}
-PORTS='-p 9090-9092:9090-9092'
+PORTS='-p 9090-9099:9090-9099'
 if [[ "$@" == *"nopo"* ]]; then PORTS=''; fi
 # TODO: take out this hack by using plt everywhere instead of langtools & plt !!!
 if [[ $FLAVOR == 'plt' ]]; then IMAGE=savyasachi9/langtools:${ARCH}; fi
@@ -66,42 +72,42 @@ if [[ $FLAVOR == 'plt' ]]; then IMAGE=savyasachi9/langtools:${ARCH}; fi
 # Run sarathy if not already running
 run(){
     # docker inspect --format '{{.State.Pid}}' $(docker ps | grep sarathy | awk '{print $1}')
-    CNT_ID=$(docker ps | grep ${CNT_NAME} | awk '{print $1}')
-    if [[ "$CNT_ID" == '' ]]; then
+    local cnt_id=$(docker ps | grep ${CNT_NAME} | awk '{print $1}')
+    if [[ "$cnt_id" == '' ]]; then
         info "Running ${FLAVOR} ...\n"
-        CNT_ID=$(docker run -it -d --rm --privileged ${PORTS} -h sarathy --name ${CNT_NAME} -v ${PWD}:/src ${IMAGE})
+        cnt_id=$(docker run -it -d --rm --privileged ${PORTS} -h sarathy --name ${CNT_NAME} -v ${PWD}:/src ${IMAGE})
         if [[ $? -gt 0 ]]; then
-            err "Unable to start ${CNT_NAME} @ ${CNT_ID}"; exit 1;
+            err "Unable to start ${CNT_NAME} @ ${cnt_id}"; exit 1;
         fi
 
         # give some breather for container to be up and running before we do some runtime checks
         sleep 9
-        success "Sarathy is now running ..."
+        success "${CNT_NAME} is now running ..."
     else
-        success "Sarathy is already running ..."
+        success "${CNT_NAME} is already running ..."
     fi
 
     # TODO: check if FLAVOR in array instead of just 1 val
-    info "Sarathy container is running with name(${CNT_NAME}) & id ${CNT_ID}"
+    info "${CNT_NAME} container is id ${cnt_id}"
     if [[ $FLAVOR != 'plt' ]]; then
         info "Checking if docker is running in ${CNT_NAME} ..."
-        docker exec $CNT_ID /bin/bash -c "systemctl status docker | head -n 3 | grep Active"
+        docker exec $cnt_id /bin/bash -c "systemctl status docker | head -n 3 | grep Active"
 
         info "\nChecking if ${FLAVOR} is running in ${CNT_NAME} ..."
         if [[ $FLAVOR == 'minikube' ]]; then
-            docker exec --user docker $CNT_ID /bin/bash -c "minikube status | xargs"
+            docker exec --user docker $cnt_id /bin/bash -c "minikube status | xargs"
         elif [[ $FLAVOR == 'k3s' ]]; then
-            docker exec --user docker $CNT_ID /bin/bash -c "k3s kubectl get nodes"
+            docker exec --user docker $cnt_id /bin/bash -c "k3s kubectl get nodes"
         fi
 
         if [[ $PORTS != '' ]]; then
-            yellow "\nYou can visit below URLs to access sarathy DEVOPS container via webtty"
+            yellow "\nYou can visit below URLs to access DEVOPS container via webtty"
             printf "http://localhost:9090"
         fi
     fi
 
     if [[ $PORTS != '' ]]; then
-        yellow "\n\nYou can visit below URLs to access sarathy DEV container's IDE(code-server/vscode) & webtty"
+        yellow "\n\nYou can visit below URLs to access DEV container's IDE(code-server/vscode) & webtty"
         printf "  http://localhost:9091?folder=/src
         http://localhost:9092\n"
     fi
@@ -113,7 +119,7 @@ exec(){
     local _exec="docker exec -it --user docker $CNT_NAME /bin/bash"
     $_exec
     if [[ $? -gt 0 ]]; then
-        err "Unable to exec into container, use below cmd ..."
+        err "Unable to exec into container, try below cmd manually ..."
         warn "$_exec"
     fi
 }
