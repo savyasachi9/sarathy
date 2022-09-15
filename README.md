@@ -65,7 +65,7 @@ http://localhost:9092
 docker exec -it sarathy-plt /bin/bash
 
 # Connect to langtools container thru sarathy-minikube container
-docker exec -it --user docker sarathy-minikube /bin/bash -c "docker exec -it -h langtools langtools bash"
+docker exec -it --user docker sarathy-minikube /bin/bash -c "docker exec -it langtools bash"
 ```
 > above languages are pre-installed with debug extensions, use key 'F5' to run debugger in IDE
 
