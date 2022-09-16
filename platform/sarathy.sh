@@ -7,14 +7,14 @@
 # - ./platform/sarathy.sh minikube ssh (hangs)                          #
 #########################################################################
 RED="\e[31m" GREEN="\e[32m" YELLOW="\e[33m" CYAN="\e[36m" ENDCLR="\e[0m"
-info()    { echo -e "${CYAN}${1}${ENDCLR}";}
-success() { echo -e "${GREEN}${1}${ENDCLR}";}
-yellow()  { echo -e "${YELLOW}${1}${ENDCLR}";}
-warn()    { echo -e "${YELLOW}${1}${ENDCLR}";}
-err()     { echo -e "${RED}${1}${ENDCLR}";}
+info()    { printf "${CYAN}${1}${ENDCLR}\n";}
+success() { printf "${GREEN}${1}${ENDCLR}\n";}
+yellow()  { printf "${YELLOW}${1}${ENDCLR}\n";}
+warn()    { printf "${YELLOW}${1}${ENDCLR}\n";}
+err()     { printf "${RED}${1}${ENDCLR}\n";}
 
 usage() {
-  echo -e "${CYAN}Usage:${ENDCLR}
+  printf "${CYAN}Usage:${ENDCLR}
 $ ./platform.sh <image type flavor> <action type>
 * param1 latest|minikube|k3s|plt
 * param2 build|run|stop|kill|exec|extend
@@ -31,7 +31,7 @@ curl -sfL https://savyasachi9.github.io/sarathy/platform/sarathy.sh | bash -s --
 # ./platform/sarathy.sh build minikube --arch=amd64|arm64 --plt
 # ./platform/sarathy.sh run minikube --backup
 # ./platform/sarathy.sh extend minikube --extend=/path/to/script.sh
-  "
+\n"
 }
 
 ####################################
@@ -119,8 +119,8 @@ exec(){
     local _exec="docker exec -it --user docker $CNT_NAME /bin/bash"
     $_exec
     if [[ $? -gt 0 ]]; then
-        err "Unable to exec into container, try below cmd manually ..."
-        warn "$_exec"
+        err "Unable to exec into container, use below cmd ..."
+        info "$_exec"
     fi
 }
 
