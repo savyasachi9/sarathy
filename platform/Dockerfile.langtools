@@ -19,7 +19,7 @@ RUN mkdir -p /tmp/vscode /scripts /src/.vscode /src/examples /src/user
 
 COPY ./${BUILD_CONTEXT}/scripts/misc.sh /scripts/misc.sh
 COPY ./${BUILD_CONTEXT}/scripts/lang-tools.sh /scripts/lang-tools.sh
-COPY ./${BUILD_CONTEXT}/scripts/test.sh /scripts/test.sh
+COPY ./${BUILD_CONTEXT}/test.sh /scripts/test.sh
 COPY ./${BUILD_CONTEXT}/vscode/extensions-${ARCH} /tmp/vscode
 COPY ./${BUILD_CONTEXT}/vscode/.vscode /src/.vscode
 COPY ./examples /src/examples

@@ -23,6 +23,6 @@ tasks:
   test:
     cmds:
       #- echo {{.ENV}} {{.NAMESPACE}}
-      - kubectl get pods | grep {{.APP_NAME}}
+      - kubectl -n ${{.NAMESPACE}} get pods | grep {{.APP_NAME}}
       # test for redis cli
       - redis-cli -h 0.0.0.0 KEYS blah

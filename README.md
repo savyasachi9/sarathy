@@ -23,10 +23,8 @@
       +------------------------+
 ```
 
-### Usage
+### Usage : only pre-req is *Docker Desktop* installed/available on host OS(win/mac/*nix)
 ```bash
-# TODO: update usage with curl call from github master tree etc
-
 # Run minikube in docker
 curl -sfL https://savyasachi9.github.io/sarathy/platform/sarathy.sh | bash -s -- minikube run
 
