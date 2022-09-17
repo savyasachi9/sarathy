@@ -1,0 +1,9 @@
+[Unit]
+Description=ttyd
+
+[Service]
+ExecStart=/usr/local/bin/ttyd -p 9090 bash
+User=docker
+
+[Install]
+WantedBy=multi-user.target

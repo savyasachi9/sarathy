@@ -105,6 +105,7 @@ fi
 if [[ $BUILD_LATEST == 'yes' ]]; then
   docker build --squash -f ${DIR}/Dockerfile --platform linux/${ARCH} --target sarathy-latest \
     --build-arg BUILD_CONTEXT=${DIR} --build-arg ARCH=${ARCH} --build-arg ARCH_ALIAS=${ARCH_ALIAS} \
+    --build-arg K8S_CLUSTER=${K8S_CLUSTER} \
     -t ${LATEST_CONTAINER_IMAGE_TAG} -t ${LATEST_CONTAINER_IMAGE_TAG_ALIAS} .
 fi
 

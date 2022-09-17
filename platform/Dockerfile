@@ -8,6 +8,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 ARG ARCH
 ARG ARCH_ALIAS
 ARG BUILD_CONTEXT
+ARG K8S_CLUSTER
 ENV USER=docker
 ENV HOME=/home/docker
 WORKDIR /tmp
@@ -27,26 +28,30 @@ RUN sed -i 's/fd:/unix:/g' /lib/systemd/system/docker.service && \
     /lib/systemd/system/docker.service && mkdir -p /etc/docker && \
     echo '{ "experimental": true, "debug" : false, "features": { "buildkit": true }, "insecure-registries" : [ "172.17.0.1:5000" ] }' > /etc/docker/daemon.json
 
-# NOTE: 'k3s' cluster's kubelet service fails for 'systemd' @arm64 as cgroupdriver as it uses 'cgroupfs', so defaulting docker to 'cgroupfs'
-# TODO: based on runtime OS support for cgroupdriver update /etc/docker/daemon.json before starting docker
-#     echo '{ "exec-opts": ["native.cgroupdriver=cgroupfs"], "experimental": true, "debug" : false, "features": { "buildkit": true } }' > /etc/docker/daemon.json
+# Issue/s:
+# - 'k3s' cluster's kubelet service fails for 'systemd' @arm64 as cgroupdriver as it uses 'cgroupfs', so defaulting docker to 'cgroupfs'
+# - also both minikube & k3s failed to start @ thinkpad carbonx1/gen6 related to a cgroupfs error
+# TODO: (do the fix at runtime & not buildtime like below as it only covers 1 case) 
+# - based on runtime OS support for cgroupdriver update /etc/docker/daemon.json before starting docker
+# - echo '{ "exec-opts": ["native.cgroupdriver=cgroupfs"], "experimental": true, "debug" : false, "features": { "buildkit": true } }' > /etc/docker/daemon.json
+RUN if [ $ARCH = 'arm64' ] && [ $K8S_CLUSTER = 'k3s' ]; then \
+    echo '{ "exec-opts": ["native.cgroupdriver=cgroupfs"], "experimental": true, "debug" : false, "features": { "buildkit": true }, "insecure-registries" : [ "172.17.0.1:5000" ] }' > /etc/docker/daemon.json ; fi
 
 # Copy over all systemd.services
 COPY ./${BUILD_CONTEXT}/systemd.services/*.service /etc/systemd/system/
 # TODO: use systemd conf file for all related ENV vars instead of making copies for each ARCH etc
 COPY ./${BUILD_CONTEXT}/systemd.services/plt.service.${ARCH} /etc/systemd/system/plt.service
+
 ENV SARATHY_HOME=/sarathy
 ENV SCRIPTS_PATH=${SARATHY_HOME}/scripts
 ENV APPS_PATH=${SARATHY_HOME}/apps
-RUN mkdir -p ${SCRIPTS_PATH}
-COPY ${BUILD_CONTEXT}/scripts/ ${SCRIPTS_PATH}/
 ENV INSTALL_SH=${SCRIPTS_PATH}/install.sh
+# RUN mkdir -p ${SCRIPTS_PATH}
+COPY ${BUILD_CONTEXT}/scripts/ ${SCRIPTS_PATH}/
 RUN cat ${SCRIPTS_PATH}/*.sh > ${INSTALL_SH}; chmod +x ${SCRIPTS_PATH}/*.sh
 
 ### Web tools (accessible over http etc):
-RUN /bin/bash -c "source ${INSTALL_SH}; install_web_tools"; \
-    # NOTE: gotty isn't available for arm64 yet so webtty service will fail to start there
-    systemctl enable webtty;
+RUN /bin/bash -c "source ${INSTALL_SH}; install_web_tools"
 
 ### Container & Kubernetes tools (docker, buildah, podman, k8s clusters, plugins, ci/cd tools etc):
 ENV PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
@@ -89,4 +94,9 @@ RUN rm -rf /usr/local/sbin/unminimize /usr/bin/man /etc/update-motd.d/60-unminim
     apt clean && apt autoclean && apt autoremove && apt autoremove --purge -y
 
 WORKDIR /src
+
+# NOTE: gotty isn't available for arm64 yet so we are using ttyd
+RUN if [ "$ARCH" = "amd64" ]; then systemctl enable webtty; \
+    elif [ "$ARCH" = "arm64" ]; then systemctl enable ttyd; fi
+
 EXPOSE 9090-9099
