@@ -45,8 +45,11 @@ RUN touch /etc/profile.d/_env.sh && \
 RUN mkdir -p /scripts
 RUN cat <<EOF >> /scripts/init.sh && chmod +x /scripts/init.sh
 #!/usr/bin/env bash
-# NOTE: gotty is not available for arm64 yet so webtty service will fail to start there
-/usr/local/bin/gotty -a 0.0.0.0 -p 9092 -w bash &
+if [[ $ARCH == 'amd64' ]]; then
+    /usr/local/bin/gotty -a 0.0.0.0 -p 9092 -w bash &
+elif [[ $ARCH == 'arm64' ]]; then
+    screen -d -m /usr/local/bin/ttyd -p 9092 bash
+fi
 
 /usr/bin/code-server --auth none --disable-telemetry --disable-update-check --bind-addr 0.0.0.0:9091;
 

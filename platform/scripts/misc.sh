@@ -10,6 +10,11 @@ install_web_tools(){
         wget -O gotty.tar.gz https://github.com/yudai/gotty/releases/download/v1.0.1/gotty_linux_amd64.tar.gz \
         && tar -xzf gotty.tar.gz && chmod +x gotty && mv gotty /usr/local/bin && ln -s $(which gotty) $TOOLS_PATH
     fi
+
+    if [[ $ARCH == 'arm64' ]]; then \
+        wget -O ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.1/ttyd.aarch64 \
+        && chmod +x ttyd && mv ttyd /usr/local/bin && ln -s $(which ttyd) $TOOLS_PATH
+    fi
 }
 
 install_web_ides(){

@@ -1,5 +1,5 @@
 [Unit]
-Description=webtty
+Description=gotty
 
 [Service]
 ExecStart=/usr/local/bin/gotty -a 0.0.0.0 -p 9090 -w bash

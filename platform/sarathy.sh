@@ -65,9 +65,10 @@ fi
 IMAGE=savyasachi9/sarathy:${FLAVOR}-${ARCH}
 CNT_NAME=sarathy-${FLAVOR}
 PORTS='-p 9090-9099:9090-9099'
+USER='--user docker'
 if [[ "$@" == *"nopo"* ]]; then PORTS=''; fi
 # TODO: take out this hack by using plt everywhere instead of langtools & plt !!!
-if [[ $FLAVOR == 'plt' ]]; then IMAGE=savyasachi9/langtools:${ARCH}; fi
+if [[ $FLAVOR == 'plt' ]]; then IMAGE=savyasachi9/langtools:${ARCH}; USER=''; fi
 
 # Run sarathy if not already running
 run(){
@@ -88,35 +89,35 @@ run(){
     fi
 
     # TODO: check if FLAVOR in array instead of just 1 val
-    info "${CNT_NAME} container is id ${cnt_id}"
+    info "${CNT_NAME} container is running with id(${cnt_id})"
     if [[ $FLAVOR != 'plt' ]]; then
         info "Checking if docker is running in ${CNT_NAME} ..."
         docker exec $cnt_id /bin/bash -c "systemctl status docker | head -n 3 | grep Active"
 
         info "\nChecking if ${FLAVOR} is running in ${CNT_NAME} ..."
         if [[ $FLAVOR == 'minikube' ]]; then
-            docker exec --user docker $cnt_id /bin/bash -c "minikube status | xargs"
+            docker exec $USER $cnt_id /bin/bash -c "minikube status | xargs"
         elif [[ $FLAVOR == 'k3s' ]]; then
-            docker exec --user docker $cnt_id /bin/bash -c "k3s kubectl get nodes"
+            docker exec $USER $cnt_id /bin/bash -c "k3s kubectl get nodes"
         fi
 
         if [[ $PORTS != '' ]]; then
-            yellow "\nYou can visit below URLs to access DEVOPS container via webtty"
-            printf "http://localhost:9090"
+            info "\nYou can visit below URLs to access DEVOPS container via webtty"
+            yellow "http://localhost:9090"
         fi
     fi
 
     if [[ $PORTS != '' ]]; then
-        yellow "\n\nYou can visit below URLs to access DEV container's IDE(code-server/vscode) & webtty"
-        printf "  http://localhost:9091?folder=/src
-        http://localhost:9092\n"
+        info "\nYou can visit below URLs to access DEV container's IDE(code-server/vscode) & webtty"
+        yellow "http://localhost:9091?folder=/src"
+        yellow "http://localhost:9092\n"
     fi
 }
 
 stop(){ info "Stopping ${CNT_NAME} ..."; docker kill $CNT_NAME;}
 kill(){ info "Nuking ${CNT_NAME} ..."; docker kill $CNT_NAME;}
 exec(){
-    local _exec="docker exec -it --user docker $CNT_NAME /bin/bash"
+    local _exec="docker exec -it $USER $CNT_NAME /bin/bash"
     $_exec
     if [[ $? -gt 0 ]]; then
         err "Unable to exec into container, use below cmd ..."
