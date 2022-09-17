@@ -89,7 +89,7 @@ run(){
     fi
 
     # TODO: check if FLAVOR in array instead of just 1 val
-    info "${CNT_NAME} container is id ${cnt_id}"
+    info "${CNT_NAME} container is running with id(${cnt_id})"
     if [[ $FLAVOR != 'plt' ]]; then
         info "Checking if docker is running in ${CNT_NAME} ..."
         docker exec $cnt_id /bin/bash -c "systemctl status docker | head -n 3 | grep Active"
@@ -102,15 +102,15 @@ run(){
         fi
 
         if [[ $PORTS != '' ]]; then
-            yellow "\nYou can visit below URLs to access DEVOPS container via webtty"
-            printf "http://localhost:9090"
+            info "\nYou can visit below URLs to access DEVOPS container via webtty"
+            yellow "http://localhost:9090"
         fi
     fi
 
     if [[ $PORTS != '' ]]; then
-        yellow "\n\nYou can visit below URLs to access DEV container's IDE(code-server/vscode) & webtty"
-        printf "  http://localhost:9091?folder=/src
-        http://localhost:9092\n"
+        info "\nYou can visit below URLs to access DEV container's IDE(code-server/vscode) & webtty"
+        yellow "http://localhost:9091?folder=/src"
+        yellow "http://localhost:9092\n"
     fi
 }
 
