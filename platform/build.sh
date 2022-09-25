@@ -25,6 +25,7 @@ ARCH=$1 #$(arch)
 ARCH_ALIAS=${ARCH}
 if [[ $ARCH == 'x86_64' ]]; then ARCH='amd64'; fi
 if [[ $ARCH == 'amd64' ]]; then ARCH_ALIAS='x86_64'; fi
+if [[ $ARCH == 'arm64' ]]; then ARCH_ALIAS='aarch64'; fi
 
 BUILD_PLT=${BUILD_PLT:-'no'}
 BUILD_LATEST=${BUILD_LATEST:-'yes'}

@@ -94,11 +94,15 @@
 - mitm with kubetap & other such tools like 'bettercap', ettercap etc
 - https://github.com/docker-mailserver/docker-mailserver
 - https://github.com/meilisearch/meilisearch
+- https://github.com/milvus-io/milvus
+- https://github.com/zinclabs/zinc
 - https://github.com/extrawurst/gitui
 - diff nix shells (fish, nushell etc)
 - https://github.com/kevwan/tproxy
 - https://github.com/pocketbase/pocketbase
 - https://dokku.com/docs/deployment/application-deployment
+- https://github.com/vi/websocat
+- https://github.com/stakater/Reloader
 
 ### Security
 - https://github.com/trufflesecurity/trufflehog

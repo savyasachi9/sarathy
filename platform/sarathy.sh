@@ -116,12 +116,14 @@ run(){
 
 stop(){ info "Stopping ${CNT_NAME} ..."; docker kill $CNT_NAME;}
 kill(){ info "Nuking ${CNT_NAME} ..."; docker kill $CNT_NAME;}
+
 exec(){
-    local _exec="docker exec -it $USER $CNT_NAME /bin/bash"
-    $_exec
+    shift 2
+    local _exec="docker exec -i $USER $CNT_NAME /bin/bash"
+    echo $@ | $_exec -
     if [[ $? -gt 0 ]]; then
         err "Unable to exec into container, use below cmd ..."
-        info "$_exec"
+        info "$_exec -c '$@'"
     fi
 }
 

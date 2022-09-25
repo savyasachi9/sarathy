@@ -1,8 +1,13 @@
 [Unit]
 Description=ttyd
 
+StartLimitIntervalSec=500
+StartLimitBurst=5
+
 [Service]
-ExecStart=/usr/local/bin/ttyd -p 9090 bash
+Restart=on-failure
+RestartSec=5s
+ExecStart=/usr/local/bin/ttyd -p 9090 -w /src bash
 User=docker
 
 [Install]
