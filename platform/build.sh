@@ -19,6 +19,7 @@
 set -e
 DIR=$(dirname $0)
 VERSION=v0.2.0
+KICBASE_VERSION=v0.0.30
 # TODO: err / EXIT if not run from sarathy root
 
 ARCH=$1 #$(arch)
@@ -26,7 +27,7 @@ ARCH_ALIAS=${ARCH}
 ARCH_ALIAS_TWO=${ARCH}
 if [[ $ARCH == 'x86_64' ]]; then ARCH='amd64'; fi
 if [[ $ARCH == 'amd64' ]]; then ARCH_ALIAS='x86_64'; ARCH_ALIAS_TWO=${ARCH_ALIAS}; fi
-if [[ $ARCH == 'arm64' ]]; then ARCH_ALIAS_TWO='aarch64'; fi
+if [[ $ARCH == 'arm64' ]]; then ARCH_ALIAS_TWO='aarch64'; KICBASE_VERSION=v0.0.31; fi
 
 BUILD_PLT=${BUILD_PLT:-'no'}
 BUILD_LATEST=${BUILD_LATEST:-'yes'}
@@ -107,7 +108,7 @@ fi
 ### 1) build latest image for asked arch
 if [[ $BUILD_LATEST == 'yes' ]]; then
   docker build --squash -f ${DIR}/Dockerfile --platform linux/${ARCH} --target sarathy-latest \
-    --build-arg BUILD_CONTEXT=${DIR} --build-arg K8S_CLUSTER=${K8S_CLUSTER} \
+    --build-arg BUILD_CONTEXT=${DIR} --build-arg KICBASE_VERSION=${KICBASE_VERSION} --build-arg K8S_CLUSTER=${K8S_CLUSTER} \
     --build-arg ARCH=${ARCH} --build-arg ARCH_ALIAS=${ARCH_ALIAS} --build-arg ARCH_ALIAS_TWO=${ARCH_ALIAS_TWO} \
     -t ${LATEST_CONTAINER_IMAGE_TAG} -t ${LATEST_CONTAINER_IMAGE_TAG_ALIAS} .
 fi

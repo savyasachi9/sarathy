@@ -3,7 +3,8 @@
 # https://github.com/kubernetes/minikube/blob/master/deploy/kicbase/Dockerfile
 # NOTE: 'sarathy-latest' image is for other devs to extend their things upon which itself extends from below
 ############### sarathy-latest ###############
-FROM gcr.io/k8s-minikube/kicbase:v0.0.31 as sarathy-latest
+ARG KICBASE_VERSION
+FROM gcr.io/k8s-minikube/kicbase:${KICBASE_VERSION} as sarathy-latest
 ARG DEBIAN_FRONTEND=noninteractive
 ARG ARCH
 ARG ARCH_ALIAS
