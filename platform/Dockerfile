@@ -3,7 +3,7 @@
 # https://github.com/kubernetes/minikube/blob/master/deploy/kicbase/Dockerfile
 # NOTE: 'sarathy-latest' image is for other devs to extend their things upon which itself extends from below
 ############### sarathy-latest ###############
-FROM gcr.io/k8s-minikube/kicbase:v0.0.30 as sarathy-latest
+FROM gcr.io/k8s-minikube/kicbase:v0.0.31 as sarathy-latest
 ARG DEBIAN_FRONTEND=noninteractive
 ARG ARCH
 ARG ARCH_ALIAS
@@ -66,6 +66,10 @@ RUN /bin/bash -c "source ${INSTALL_SH}; install_golang_tools; install_rust_tools
 ### Build, Benchmarking & other misc tools
 RUN /bin/bash -c 'source ${INSTALL_SH}; install_build_tools; install_benchmarking_tools; install_misc_tools'
 
+### aws cli, localstack, terraform
+ENV PATH="/home/$USER/.local/bin:$PATH"
+RUN /bin/bash -c 'source ${INSTALL_SH}; install_aws_cli; install_aws_localstack; install_terraform'
+
 ### Copy apps & set user ENV vars (TODO: use bash_profile ???)
 COPY ./apps ${SARATHY_HOME}/apps
 COPY ./docs ${SARATHY_HOME}/docs
@@ -89,9 +93,8 @@ RUN chown -R $USER:$USER $HOME $SARATHY_HOME && \
 
 ### Cleanups : remove these for now with 'unminimize' msg
 RUN rm -rf /usr/local/sbin/unminimize /usr/bin/man /etc/update-motd.d/60-unminimize; \
-    rm -rf /tmp/* ~/.ssh/* ~/.docker/*; \
-    rm -rf /srv \
-    apt clean && apt autoclean && apt autoremove && apt autoremove --purge -y
+    rm -rf /tmp/* ~/.ssh/* ~/.docker/* /srv; \
+    apt clean -y && apt autoclean -y && apt autoremove -y && apt autoremove --purge -y
 
 WORKDIR /src
 

@@ -43,6 +43,6 @@ func main() {
 	}
 }
 
-func work(j chan, w chan) {
+func work(j chan int, w chan int) {
 
 }

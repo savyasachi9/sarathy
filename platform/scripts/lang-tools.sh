@@ -29,7 +29,7 @@ install_python(){
     # $1 VERSION         (default python3.8)
     # $2 CODE_SERVER_EXT (default no)
     # NOTE: python3(comes with distro image)
-    sudo DEBIAN_FRONTEND=noninteractive apt install -y -qq python3-pip python-is-python3
+    sudo DEBIAN_FRONTEND=noninteractive apt install --fix-missing -y -qq python3-pip python-is-python3
     if [[ $2 == 'yes' ]]; then code-server --install-extension ms-python.python; fi
 }
 
@@ -38,10 +38,9 @@ install_python_tools(){
     echo 'eval $(thefuck --alias)' | sudo tee -a /etc/profile.d/_env.sh
 
     # TODO: sylmink this in it's own path
-
     # https://graphviz.gitlab.io/download/
-    sudo DEBIAN_FRONTEND=noninteractive apt install graphviz
-    sudo pip3 install diagrams
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y graphviz
+    pip3 install diagrams
 }
 
 install_golang(){
@@ -104,4 +103,3 @@ install_java(){
 
 # install_scratch(){
 # }
-

@@ -1,0 +1,9 @@
+[Unit]
+Description=localstack
+
+[Service]
+ExecStart=/home/docker/.local/bin/localstack start
+User=docker
+
+[Install]
+WantedBy=multi-user.target

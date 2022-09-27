@@ -8,10 +8,23 @@ install_gcloud_cli(){
 }
 
 install_aws_cli(){
-    sudo apt install -y awscli
+    curl "https://awscli.amazonaws.com/awscli-exe-linux-${ARCH_ALIAS_TWO}.zip" -o "awscliv2.zip"
+    unzip awscliv2.zip
+    sudo ./aws/install
+}
+
+install_aws_localstack(){
+    python3 -m pip install --user localstack
+    sudo mkdir -p /var/lib/localstack
+    sudo chown $USER:$USER /var/lib/localstack
+    #echo "export PATH=/home/$USER/.local/bin:$PATH" | sudo tee -a /etc/profile.d/_env.sh
 }
 
 install_azure_cli(){
     curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 }
 
+install_terraform(){
+    wget -O tf.zip https://releases.hashicorp.com/terraform/1.2.9/terraform_1.2.9_linux_${ARCH}.zip
+    unzip -o tf.zip && sudo mv terraform /usr/local/bin && sudo ln -s /usr/local/bin/terraform /usr/local/bin/tf
+}
