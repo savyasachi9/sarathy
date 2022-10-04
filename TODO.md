@@ -108,6 +108,7 @@
 - https://github.com/trufflesecurity/trufflehog
 - https://github.com/wazuh/wazuh
 - https://github.com/kubescape/kubescape
+- https://github.com/ffuf/ffuf#get-parameter-fuzzing
 
 ### Misc Items:
 - IMP: disable SWAP ?????? test with disabling swap and if it works then just keep it disabled for best performance of k8s cluster
